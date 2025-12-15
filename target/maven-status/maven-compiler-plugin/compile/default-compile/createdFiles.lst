@@ -1,8 +1,14 @@
 com\phonecard\dao\UserDAO.class
 com\phonecard\controller\PromotionController.class
+com\phonecard\dao\CardProductDAO.class
 com\phonecard\dao\PromotionDAO.class
 com\phonecard\config\DBContext.class
+com\phonecard\model\Provider.class
+com\phonecard\model\CardProduct.class
+com\phonecard\controller\HomeController.class
+com\phonecard\controller\ProductController.class
+com\phonecard\model\Promotion.class
 com\phonecard\model\User.class
 com\phonecard\controller\AuthController.class
+com\phonecard\dao\ProviderDAO.class
 com\phonecard\controller\AdminUserController.class
-com\phonecard\model\Promotion.class
