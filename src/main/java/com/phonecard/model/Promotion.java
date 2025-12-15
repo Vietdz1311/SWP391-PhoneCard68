@@ -117,8 +117,8 @@ public class Promotion {
         this.status = status;
     }
     
-    // Helper để hiển thị đẹp trên JSP nếu cần (VD: format ngày tháng)
     public boolean isActive() {
         return "Active".equals(this.status);
     }
 }
+

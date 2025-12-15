@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -74,8 +75,6 @@ public class AdminUserController extends HttpServlet {
         String keyword = request.getParameter("keyword");
         String roleFilter = request.getParameter("role");
         String statusFilter = request.getParameter("status");
-
-     
         String currentTab = servletPath.contains("staff") ? "staff" : "customers";
 
         List<User> filteredList = allUsers.stream()
@@ -90,9 +89,36 @@ public class AdminUserController extends HttpServlet {
             .filter(u -> statusFilter == null || statusFilter.isEmpty() || "All".equals(statusFilter) || u.getStatus().equalsIgnoreCase(statusFilter))
             .collect(Collectors.toList());
 
+        
+        int page = 1;
+        int pageSize = 5; 
+        try {
+            if (request.getParameter("page") != null) {
+                page = Integer.parseInt(request.getParameter("page"));
+            }
+        } catch (NumberFormatException e) {
+            page = 1;
+        }
+
+        int totalItems = filteredList.size();
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+        
+        if (page < 1) page = 1;
+        if (page > totalPages && totalPages > 0) page = totalPages;
+
+        int start = (page - 1) * pageSize;
+        int end = Math.min(start + pageSize, totalItems);
+
+        List<User> pagedList;
+        if (start > end || totalItems == 0) {
+            pagedList = new ArrayList<>();
+        } else {
+            pagedList = filteredList.subList(start, end); 
+        }
+
         String pageTitle = servletPath.contains("staff") ? "Quản lý Nhân viên" : "Quản lý Khách hàng";
 
-        request.setAttribute("listUsers", filteredList);
+        request.setAttribute("listUsers", pagedList); 
         request.setAttribute("pageTitle", pageTitle);
         request.setAttribute("currentTab", currentTab); 
         
@@ -100,10 +126,9 @@ public class AdminUserController extends HttpServlet {
         request.setAttribute("paramRole", roleFilter);
         request.setAttribute("paramStatus", statusFilter);
 
-        
-        request.setAttribute("totalCount", filteredList.size()); 
-        request.setAttribute("listUsers", filteredList);
-        request.setAttribute("pageTitle", pageTitle);
+        request.setAttribute("totalCount", totalItems);
+        request.setAttribute("currentPage", page);      
+        request.setAttribute("totalPages", totalPages); 
         
         request.getRequestDispatcher("/web-page/admin/user-list.jsp").forward(request, response);
     }

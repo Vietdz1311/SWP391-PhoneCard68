@@ -1,9 +1,8 @@
 package com.phonecard.controller;
 
 
-
 import com.phonecard.dao.CardProductDAO;
-
+import com.phonecard.dao.ProviderDAO;
 import com.phonecard.model.CardProduct;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,6 +17,7 @@ import java.util.List;
 public class ProductController extends HttpServlet {
     private static final int PAGE_SIZE = 12;
     private CardProductDAO productDAO = new CardProductDAO();
+    private ProviderDAO providerDAO = new ProviderDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -53,6 +53,7 @@ public class ProductController extends HttpServlet {
         int totalPages = (int) Math.ceil((double) total / PAGE_SIZE);
 
         request.setAttribute("products", products);
+        request.setAttribute("providers", providerDAO.getAllActiveProviders());
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("currentPage", page);
         request.setAttribute("search", search);
@@ -73,6 +74,7 @@ public class ProductController extends HttpServlet {
             return;
         }
 
+        request.setAttribute("providers", providerDAO.getAllActiveProviders());
 
         request.setAttribute("product", product);
         request.getRequestDispatcher("/web-page/product-details.jsp").forward(request, response);

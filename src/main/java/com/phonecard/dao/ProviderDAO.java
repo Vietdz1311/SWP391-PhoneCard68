@@ -2,6 +2,7 @@ package com.phonecard.dao;
 
 import com.phonecard.config.DBContext;
 import com.phonecard.model.Provider;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProviderDAO {
-    
     public List<Provider> getAllActiveProviders() {
         List<Provider> list = new ArrayList<>();
         String sql = "SELECT * FROM Providers WHERE is_active = TRUE ORDER BY provider_name";

@@ -18,5 +18,5 @@ public class Provider {
     public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
 
     public boolean isActive() { return isActive; }
-    public void setIsActive(boolean isActive) { this.isActive = isActive; }
+public void setIsActive(boolean isActive) { this.isActive = isActive; }
 }
