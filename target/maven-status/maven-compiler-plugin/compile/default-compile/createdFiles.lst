@@ -10,5 +10,6 @@ com\phonecard\controller\ProductController.class
 com\phonecard\model\Promotion.class
 com\phonecard\model\User.class
 com\phonecard\controller\AuthController.class
+com\phonecard\controller\ProfileController.class
 com\phonecard\dao\ProviderDAO.class
 com\phonecard\controller\AdminUserController.class
