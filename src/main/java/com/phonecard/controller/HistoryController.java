@@ -15,9 +15,6 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Controller hiển thị lịch sử mua hàng và giao dịch
- */
 @WebServlet(name = "HistoryController", urlPatterns = {"/history"})
 public class HistoryController extends HttpServlet {
     
@@ -29,7 +26,6 @@ public class HistoryController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // Kiểm tra đăng nhập
         HttpSession session = request.getSession(false);
         User user = (session != null) ? (User) session.getAttribute("user") : null;
         
@@ -48,7 +44,6 @@ public class HistoryController extends HttpServlet {
         } catch (NumberFormatException ignored) {}
         
         if ("transactions".equals(tab)) {
-            // Lịch sử giao dịch
             List<Transaction> transactions = transactionDAO.getTransactionsByUserId(user.getUserId(), page, PAGE_SIZE);
             int total = transactionDAO.countTransactionsByUserId(user.getUserId());
             int totalPages = (int) Math.ceil((double) total / PAGE_SIZE);
@@ -56,7 +51,6 @@ public class HistoryController extends HttpServlet {
             request.setAttribute("transactions", transactions);
             request.setAttribute("totalPages", totalPages);
         } else {
-            // Lịch sử đơn hàng
             List<Order> orders = orderDAO.getOrdersByUserId(user.getUserId(), page, PAGE_SIZE);
             int total = orderDAO.countOrdersByUserId(user.getUserId());
             int totalPages = (int) Math.ceil((double) total / PAGE_SIZE);

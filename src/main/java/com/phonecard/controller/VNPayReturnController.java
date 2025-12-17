@@ -19,9 +19,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Controller xử lý kết quả trả về từ VNPay
- */
 @WebServlet(name = "VNPayReturnController", urlPatterns = {"/vnpay-return"})
 public class VNPayReturnController extends HttpServlet {
     
@@ -35,7 +32,6 @@ public class VNPayReturnController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // Lấy tất cả params từ VNPay
         Map<String, String> params = new HashMap<>();
         Enumeration<String> paramNames = request.getParameterNames();
         while (paramNames.hasMoreElements()) {
@@ -46,7 +42,6 @@ public class VNPayReturnController extends HttpServlet {
             }
         }
         
-        // Validate signature
         if (!VNPayUtil.validateSignature(params)) {
             request.setAttribute("error", "Chữ ký không hợp lệ");
             request.setAttribute("success", false);
@@ -69,7 +64,6 @@ public class VNPayReturnController extends HttpServlet {
             return;
         }
         
-        // Lấy transaction
         Transaction trans = transactionDAO.getTransactionById(transId);
         if (trans == null) {
             request.setAttribute("error", "Không tìm thấy giao dịch");
@@ -78,7 +72,6 @@ public class VNPayReturnController extends HttpServlet {
             return;
         }
         
-        // Kiểm tra giao dịch đã được xử lý chưa
         if (!"Pending".equals(trans.getStatus())) {
             // Giao dịch đã được xử lý, hiển thị kết quả
             Order order = orderDAO.getOrderById(trans.getOrderId());
@@ -95,7 +88,6 @@ public class VNPayReturnController extends HttpServlet {
             conn = DBContext.getConnection();
             conn.setAutoCommit(false);
             
-            // Log kết quả từ VNPay
             PaymentGatewayLog log = new PaymentGatewayLog();
             log.setTransId(transId);
             log.setGatewayName("VNPAY");
@@ -104,11 +96,9 @@ public class VNPayReturnController extends HttpServlet {
             logDAO.createLog(log, conn);
             
             if ("00".equals(vnpResponseCode)) {
-                // Thanh toán thành công
                 transactionDAO.updateTransactionStatus(transId, "Success", conn);
                 orderDAO.updateOrderStatus(trans.getOrderId(), "Completed", conn);
                 
-                // Cập nhật trạng thái thẻ
                 Order order = orderDAO.getOrderById(trans.getOrderId());
                 if (order != null) {
                     inventoryDAO.updateCardStatus(order.getCardId(), "Sold", conn);
@@ -116,7 +106,6 @@ public class VNPayReturnController extends HttpServlet {
                 
                 conn.commit();
                 
-                // Refresh user session
                 HttpSession session = request.getSession(false);
                 if (session != null) {
                     User user = (User) session.getAttribute("user");
@@ -126,15 +115,12 @@ public class VNPayReturnController extends HttpServlet {
                     }
                 }
                 
-                // Redirect đến trang kết quả thành công
                 response.sendRedirect(request.getContextPath() + "/purchase-result?orderId=" + trans.getOrderId());
                 
             } else {
-                // Thanh toán thất bại
                 transactionDAO.updateTransactionStatus(transId, "Failed", conn);
                 orderDAO.updateOrderStatus(trans.getOrderId(), "Cancelled", conn);
                 
-                // Trả lại thẻ về kho
                 Order order = orderDAO.getOrderById(trans.getOrderId());
                 if (order != null) {
                     inventoryDAO.updateCardStatus(order.getCardId(), "Available", conn);

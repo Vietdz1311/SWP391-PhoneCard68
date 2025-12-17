@@ -11,11 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OrderDAO {
-
-    /**
-     * Tạo đơn hàng mới
-     * @return order_id của đơn hàng vừa tạo, -1 nếu thất bại
-     */
     public long createOrder(Order order, Connection conn) throws SQLException {
         String sql = "INSERT INTO Orders (user_id, promotion_id, card_id, price, discount_amount, final_amount, status) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -44,9 +39,6 @@ public class OrderDAO {
         return -1;
     }
 
-    /**
-     * Tạo đơn hàng mới (tự quản lý connection)
-     */
     public long createOrder(Order order) {
         try (Connection conn = DBContext.getConnection()) {
             return createOrder(order, conn);
@@ -56,9 +48,6 @@ public class OrderDAO {
         }
     }
 
-    /**
-     * Cập nhật trạng thái đơn hàng
-     */
     public boolean updateOrderStatus(long orderId, String status, Connection conn) throws SQLException {
         String sql = "UPDATE Orders SET status = ? WHERE order_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -68,9 +57,6 @@ public class OrderDAO {
         }
     }
 
-    /**
-     * Cập nhật trạng thái đơn hàng (tự quản lý connection)
-     */
     public boolean updateOrderStatus(long orderId, String status) {
         try (Connection conn = DBContext.getConnection()) {
             return updateOrderStatus(orderId, status, conn);
@@ -80,9 +66,6 @@ public class OrderDAO {
         }
     }
 
-    /**
-     * Lấy đơn hàng theo ID
-     */
     public Order getOrderById(long orderId) {
         String sql = "SELECT o.*, ci.serial_number, ci.card_code, ci.expiry_date, ci.status as card_status, " +
                      "cp.product_name, cp.face_value, cp.selling_price, cp.description, " +
@@ -107,9 +90,6 @@ public class OrderDAO {
         return null;
     }
 
-    /**
-     * Lấy danh sách đơn hàng theo user_id
-     */
     public List<Order> getOrdersByUserId(int userId, int page, int size) {
         List<Order> list = new ArrayList<>();
         String sql = "SELECT o.*, ci.serial_number, ci.card_code, ci.expiry_date, ci.status as card_status, " +
@@ -139,9 +119,6 @@ public class OrderDAO {
         return list;
     }
 
-    /**
-     * Đếm tổng số đơn hàng của user
-     */
     public int countOrdersByUserId(int userId) {
         String sql = "SELECT COUNT(*) FROM Orders WHERE user_id = ?";
         try (Connection conn = DBContext.getConnection();
@@ -172,7 +149,6 @@ public class OrderDAO {
             order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
         }
 
-        // Map CardInventory
         CardInventory ci = new CardInventory();
         ci.setCardId(rs.getLong("card_id"));
         ci.setSerialNumber(rs.getString("serial_number"));
@@ -181,14 +157,12 @@ public class OrderDAO {
         ci.setStatus(rs.getString("card_status"));
         order.setCardInventory(ci);
 
-        // Map CardProduct
         CardProduct cp = new CardProduct();
         cp.setProductName(rs.getString("product_name"));
         cp.setFaceValue(rs.getDouble("face_value"));
         cp.setSellingPrice(rs.getDouble("selling_price"));
         cp.setDescription(rs.getString("description"));
 
-        // Map Provider
         Provider pr = new Provider();
         pr.setProviderId(rs.getInt("provider_id"));
         pr.setProviderName(rs.getString("provider_name"));

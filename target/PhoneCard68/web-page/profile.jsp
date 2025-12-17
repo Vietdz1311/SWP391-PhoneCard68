@@ -1,4 +1,3 @@
-<%-- web-page/profile.jsp (Cập nhật: Thông tin hiển thị chính, nút mở popup/modal cho cập nhật & đổi mật khẩu) --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -13,7 +12,6 @@
       </div>
 
       <div class="p-10">
-        <!-- Thông báo thành công/lỗi -->
         <c:if test="${not empty success}">
           <div class="bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded-xl mb-8 flex items-center">
             <i class='bx bx-check-circle text-2xl mr-3'></i> ${success}
@@ -25,7 +23,6 @@
           </div>
         </c:if>
 
-        <!-- Thông tin cá nhân chính -->
         <div class="space-y-8 text-lg">
           <div class="grid md:grid-cols-2 gap-8">
             <div>
@@ -43,7 +40,6 @@
             </div>
           </div>
 
-          <!-- Các nút mở modal -->
           <div class="flex flex-col sm:flex-row gap-6 mt-10">
             <button onclick="openModal('updateProfileModal')"
                     class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition shadow-lg transform hover:scale-105">
@@ -60,7 +56,6 @@
   </div>
 </section>
 
-<!-- Modal Cập nhật thông tin -->
 <div id="updateProfileModal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center z-50 px-4">
   <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 relative animate-scale-in">
     <button onclick="closeModal('updateProfileModal')" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-3xl">
@@ -100,7 +95,6 @@
   </div>
 </div>
 
-<!-- Modal Đổi mật khẩu -->
 <div id="changePasswordModal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center z-50 px-4">
   <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 relative animate-scale-in">
     <button onclick="closeModal('changePasswordModal')" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-3xl">
@@ -143,7 +137,7 @@
 <script>
   function openModal(modalId) {
     document.getElementById(modalId).classList.remove('hidden');
-    document.body.style.overflow = 'hidden'; // Ngăn scroll background
+    document.body.style.overflow = 'hidden'; /
   }
 
   function closeModal(modalId) {

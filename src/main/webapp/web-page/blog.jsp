@@ -9,7 +9,6 @@
       Tin tức & Khuyến mãi
     </h1>
 
-    <!-- Search Form -->
     <div class="max-w-2xl mx-auto mb-12">
       <form action="blog" method="get" class="flex gap-4">
         <input type="text" name="search" value="${search}" placeholder="Tìm kiếm tin tức..."
@@ -21,14 +20,12 @@
       </form>
     </div>
 
-    <!-- Blog Grid -->
     <c:if test="${empty posts}">
       <p class="text-center text-xl text-gray-600">Không tìm thấy bài viết nào.</p>
     </c:if>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
       <c:forEach var="post" items="${posts}">
-        <!-- Toàn bộ card là link (dùng onclick để chuyển trang mượt, cursor pointer) -->
         <div onclick="window.location.href='blog?action=details&slug=${post.slug}'"
              class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 cursor-pointer group">
           <div class="relative overflow-hidden">
@@ -43,16 +40,13 @@
             <p class="text-gray-600 mb-4 line-clamp-3">${post.content.replaceAll('<[^>]*>', '')}</p>
             <div class="flex justify-between text-sm text-gray-500">
               <span><i class='bx bx-user mr-1'></i> ${post.author.username}</span>
-              <span><i class='bx bx-calendar mr-1'></i> 
-                <fmt:formatDate value="${post.publishedAt}" pattern="dd/MM/yyyy"/>
-              </span>
+              <span><i class='bx bx-calendar mr-1'></i> ${post.formattedDate}</span>
             </div>
           </div>
         </div>
       </c:forEach>
     </div>
 
-    <!-- Pagination -->
     <c:if test="${totalPages > 1}">
       <div class="flex justify-center mt-12">
         <nav class="flex space-x-2 bg-white rounded-xl p-2 shadow-lg">

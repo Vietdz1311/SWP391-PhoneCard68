@@ -3,17 +3,19 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <jsp:include page="./components/header.jsp" />
 
+<c:set var="discountAmount" value="${discountAmount != null ? discountAmount : 0}" />
+<c:set var="finalAmount" value="${finalAmount != null ? finalAmount : product.sellingPrice}" />
+<c:set var="promoCode" value="${promoCode}" />
+
 <section class="py-16 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
   <div class="container mx-auto px-4">
     <div class="max-w-4xl mx-auto">
       
-      <!-- Page Title -->
       <div class="text-center mb-10">
         <h1 class="text-4xl font-bold text-gray-900 mb-3">Thanh toán đơn hàng</h1>
         <p class="text-gray-600 text-lg">Hoàn tất thanh toán để nhận thẻ cào ngay lập tức</p>
       </div>
 
-      <!-- Error Message -->
       <c:if test="${not empty error}">
         <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-xl">
           <div class="flex items-center">
@@ -25,7 +27,6 @@
 
       <div class="grid lg:grid-cols-5 gap-8">
         
-        <!-- Order Summary -->
         <div class="lg:col-span-2">
           <div class="bg-white rounded-2xl shadow-xl overflow-hidden sticky top-24">
             <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
@@ -33,7 +34,6 @@
             </div>
             
             <div class="p-6">
-              <!-- Product Info -->
               <div class="flex items-center gap-4 pb-6 border-b border-gray-100">
                 <img src="${product.provider.logoUrl != null ? product.provider.logoUrl : 'https://via.placeholder.com/80?text=' += product.provider.providerName}"
                      alt="${product.provider.providerName}"
@@ -44,7 +44,6 @@
                 </div>
               </div>
               
-              <!-- Price Details -->
               <div class="py-6 space-y-3">
                 <div class="flex justify-between items-center">
                   <span class="text-gray-600">Mệnh giá</span>
@@ -58,20 +57,33 @@
                     <fmt:formatNumber value="${product.sellingPrice}" type="currency" currencySymbol="₫"/>
                   </span>
                 </div>
+                <c:if test="${discountAmount > 0}">
+                  <div class="flex justify-between items-center text-green-700">
+                    <span class="flex items-center gap-1">
+                      <i class='bx bx-purchase-tag-alt'></i> Giảm giá
+                    </span>
+                    <span>-<fmt:formatNumber value="${discountAmount}" type="currency" currencySymbol="₫"/></span>
+                  </div>
+                </c:if>
+                <div class="flex justify-between items-center pt-2 border-t border-dashed border-gray-200">
+                  <span class="text-gray-700 font-semibold">Tổng thanh toán</span>
+                  <span class="font-bold text-2xl text-blue-700">
+                    <fmt:formatNumber value="${finalAmount}" type="currency" currencySymbol="₫"/>
+                  </span>
+                </div>
               </div>
               
-              <!-- Wallet Info -->
               <div class="pt-6 border-t border-gray-100">
                 <div class="flex justify-between items-center mb-2">
                   <span class="text-gray-600">Số dư ví hiện tại</span>
-                  <span class="font-bold text-xl ${sessionScope.user.walletBalance >= product.sellingPrice ? 'text-green-600' : 'text-orange-500'}">
+                  <span class="font-bold text-xl ${sessionScope.user.walletBalance >= finalAmount ? 'text-green-600' : 'text-orange-500'}">
                     <fmt:formatNumber value="${sessionScope.user.walletBalance}" type="number"/>₫
                   </span>
                 </div>
-                <c:if test="${sessionScope.user.walletBalance < product.sellingPrice}">
+                <c:if test="${sessionScope.user.walletBalance < finalAmount}">
                   <p class="text-sm text-orange-600 flex items-center">
                     <i class='bx bx-info-circle mr-1'></i>
-                    Cần nạp thêm: <fmt:formatNumber value="${product.sellingPrice - sessionScope.user.walletBalance}" type="number"/>₫
+                    Cần nạp thêm: <fmt:formatNumber value="${finalAmount - sessionScope.user.walletBalance}" type="number"/>₫
                   </p>
                 </c:if>
               </div>
@@ -79,7 +91,6 @@
           </div>
         </div>
 
-        <!-- Payment Methods -->
         <div class="lg:col-span-3">
           <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100">
@@ -89,13 +100,31 @@
             <form action="${pageContext.request.contextPath}/purchase" method="post" class="p-6">
               <input type="hidden" name="productId" value="${product.productId}">
               
+              <div class="mb-6">
+                <label class="block text-gray-700 font-semibold mb-2">Mã giảm giá</label>
+                <div class="flex gap-3">
+                  <input type="text" name="promoCode" value="${promoCode}" placeholder="Nhập mã"
+                         class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <button type="submit"
+                          formaction="${pageContext.request.contextPath}/purchase"
+                          formmethod="get"
+                          class="px-5 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition">
+                    Áp dụng
+                  </button>
+                </div>
+                <c:if test="${appliedPromotion != null}">
+                  <p class="mt-2 text-sm text-green-700 flex items-center gap-1">
+                    <i class='bx bx-badge-check'></i> Đã áp dụng mã: ${appliedPromotion.code}
+                  </p>
+                </c:if>
+              </div>
+
               <div class="space-y-4">
                 
-                <!-- Wallet Payment -->
                 <label class="payment-option block cursor-pointer">
                   <input type="radio" name="paymentMethod" value="wallet" 
                          class="hidden peer" 
-                         ${sessionScope.user.walletBalance >= product.sellingPrice ? 'checked' : 'disabled'}>
+                         ${sessionScope.user.walletBalance >= finalAmount ? 'checked' : 'disabled'}>
                   <div class="border-2 rounded-xl p-5 transition-all duration-300 
                               peer-checked:border-blue-500 peer-checked:bg-blue-50 
                               peer-disabled:opacity-50 peer-disabled:cursor-not-allowed
@@ -114,13 +143,13 @@
                         <i class='bx bx-check text-white text-sm hidden peer-checked:block'></i>
                       </div>
                     </div>
-                    <c:if test="${sessionScope.user.walletBalance < product.sellingPrice}">
+                    <c:if test="${sessionScope.user.walletBalance < finalAmount}">
                       <div class="mt-3 flex items-center justify-between bg-orange-50 rounded-lg p-3">
                         <span class="text-orange-700 text-sm font-medium">
                           <i class='bx bx-error-circle mr-1'></i>
                           Số dư không đủ
                         </span>
-                        <a href="${pageContext.request.contextPath}/deposit?amount=${product.sellingPrice - sessionScope.user.walletBalance}&returnTo=/purchase?productId=${product.productId}" 
+                        <a href="${pageContext.request.contextPath}/deposit?amount=${finalAmount - sessionScope.user.walletBalance}&returnTo=/purchase?productId=${product.productId}" 
                            class="text-sm font-bold text-blue-600 hover:text-blue-700 hover:underline">
                           Nạp ngay →
                         </a>
@@ -129,10 +158,9 @@
                   </div>
                 </label>
 
-                <!-- VNPay Payment -->
                 <label class="payment-option block cursor-pointer">
                   <input type="radio" name="paymentMethod" value="vnpay" class="hidden peer"
-                         ${sessionScope.user.walletBalance < product.sellingPrice ? 'checked' : ''}>
+                         ${sessionScope.user.walletBalance < finalAmount ? 'checked' : ''}>
                   <div class="border-2 rounded-xl p-5 transition-all duration-300 
                               peer-checked:border-blue-500 peer-checked:bg-blue-50 
                               hover:border-blue-300">
@@ -160,18 +188,16 @@
                 </label>
               </div>
 
-              <!-- Submit Button -->
               <div class="mt-8">
                 <button type="submit" 
                         class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg py-4 rounded-xl 
                                hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl 
                                transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
                   <i class='bx bx-lock-alt'></i>
-                  Thanh toán <fmt:formatNumber value="${product.sellingPrice}" type="currency" currencySymbol="₫"/>
+                  Thanh toán <fmt:formatNumber value="${finalAmount}" type="currency" currencySymbol="₫"/>
                 </button>
               </div>
 
-              <!-- Security Notice -->
               <div class="mt-6 flex items-start gap-3 text-sm text-gray-500">
                 <i class='bx bx-shield-quarter text-green-500 text-xl flex-shrink-0'></i>
                 <p>Giao dịch của bạn được bảo mật bằng công nghệ mã hóa SSL 256-bit. Thẻ sẽ được gửi ngay sau khi thanh toán thành công.</p>
@@ -179,7 +205,6 @@
             </form>
           </div>
 
-          <!-- Back Link -->
           <div class="mt-6 text-center">
             <a href="${pageContext.request.contextPath}/products?action=details&id=${product.productId}" 
                class="inline-flex items-center text-gray-600 hover:text-blue-600 font-medium transition">

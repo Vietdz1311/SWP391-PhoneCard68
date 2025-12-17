@@ -19,11 +19,10 @@ public class UserDAO {
         String sql = "SELECT * FROM Users WHERE (username = ? OR email=?) AND status = 'Active'";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
-            ps.setString(2, username);
+             ps.setString(2, username);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
+            if (rs.next()) {
                     User user = mapUser(rs);
-                    // Kiểm tra password với BCrypt
                     if (BCrypt.checkpw(password, user.getPassword())) {
                         return user;
                     }
@@ -36,11 +35,10 @@ public class UserDAO {
     }
 
     public boolean register(User user) {
-        String sql = "INSERT INTO Users (username, email, password, phone, role, status, wallet_balance) VALUES (?, ?, ?, ?, 'Customer', 'Active', 0)";
+        String sql = "INSERT INTO Users (username, email, password, phone, role, status, wallet_balance) VALUES (?, ?, ?, ?, 'Customer', 'Locked', 0)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getUsername());
             ps.setString(2, user.getEmail());
-            // Hash password với BCrypt
             String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
             ps.setString(3, hashedPassword);
             ps.setString(4, user.getPhone());
@@ -52,9 +50,6 @@ public class UserDAO {
         return false;
     }
 
-    /**
-     * Tạo tài khoản Staff (chỉ Admin dùng)
-     */
     public boolean createStaff(User user) {
         String sql = "INSERT INTO Users (username, email, password, phone, role, status) VALUES (?, ?, ?, ?, 'Staff', 'Active')";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -70,9 +65,7 @@ public class UserDAO {
         return false;
     }
 
-    /**
-     * Cập nhật trạng thái user (Lock/Active)
-     */
+   
     public boolean updateUserStatus(int userId, String newStatus) {
         String sql = "UPDATE Users SET status = ? WHERE user_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -85,9 +78,6 @@ public class UserDAO {
         return false;
     }
 
-    /**
-     * Admin cập nhật thông tin user (phone, password)
-     */
     public boolean adminUpdateUser(User user, String newPassword) {
         StringBuilder sql = new StringBuilder("UPDATE Users SET phone = ?");
         if (newPassword != null && !newPassword.isEmpty()) {
@@ -125,7 +115,7 @@ public class UserDAO {
         return list;
     }
     
-    public User getUserById(int id) {
+     public User getUserById(int id) {
         String sql = "SELECT * FROM Users WHERE user_id=?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -139,40 +129,33 @@ public class UserDAO {
         return null;
     }
      
-    public boolean updateProfile(User user) {
-        String sql = "UPDATE Users SET username = ?, email = ?, phone = ? WHERE user_id = ?";
+     public boolean updateProfile(User user) {
+    String sql = "UPDATE Users SET username = ?, email = ?, phone = ? WHERE user_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, user.getUsername());
-            ps.setString(2, user.getEmail());
-            ps.setString(3, user.getPhone());
-            ps.setInt(4, user.getUserId());
-            return ps.executeUpdate() > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+        ps.setString(1, user.getUsername());
+        ps.setString(2, user.getEmail());
+        ps.setString(3, user.getPhone());
+        ps.setInt(4, user.getUserId());
+        return ps.executeUpdate() > 0;
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+    return false;
+}
 
-    public boolean changePassword(User user) {
-        String sql = "UPDATE Users SET password = ? WHERE user_id = ?";
+public boolean changePassword(User user) {
+    String sql = "UPDATE Users SET password = ? WHERE user_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            // Hash password mới với BCrypt
             String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
             ps.setString(1, hashedPassword);
-            ps.setInt(2, user.getUserId());
-            return ps.executeUpdate() > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+        ps.setInt(2, user.getUserId());
+        return ps.executeUpdate() > 0;
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+    return false;
+}
 
-    /**
-     * Cập nhật số dư ví của user
-     * @param userId ID của user
-     * @param amount Số tiền thay đổi (+ nạp, - trừ)
-     * @param conn Connection (để dùng trong transaction)
-     */
     public boolean updateWalletBalance(int userId, java.math.BigDecimal amount, Connection conn) throws SQLException {
         String sql = "UPDATE Users SET wallet_balance = wallet_balance + ? WHERE user_id = ? AND wallet_balance + ? >= 0";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -183,9 +166,6 @@ public class UserDAO {
         }
     }
 
-    /**
-     * Cập nhật số dư ví của user (tự quản lý connection)
-     */
     public boolean updateWalletBalance(int userId, java.math.BigDecimal amount) {
         try (Connection conn = DBContext.getConnection()) {
             return updateWalletBalance(userId, amount, conn);
@@ -195,9 +175,6 @@ public class UserDAO {
         }
     }
 
-    /**
-     * Lấy số dư ví hiện tại
-     */
     public java.math.BigDecimal getWalletBalance(int userId) {
         String sql = "SELECT wallet_balance FROM Users WHERE user_id = ?";
         try (Connection conn = DBContext.getConnection();
@@ -213,11 +190,136 @@ public class UserDAO {
         return java.math.BigDecimal.ZERO;
     }
 
-    /**
-     * Refresh thông tin user từ database
-     */
     public User refreshUser(int userId) {
         return getUserById(userId);
+    }
+
+    public User getUserByEmail(String email) {
+        String sql = "SELECT * FROM Users WHERE email = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return mapUser(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean savePasswordResetToken(int userId, String token) {
+        String deleteSql = "DELETE FROM Password_Reset_Tokens WHERE user_id = ? AND token_type = 'RESET'";
+        String insertSql = "INSERT INTO Password_Reset_Tokens (user_id, token, token_type, expires_at) VALUES (?, ?, 'RESET', DATE_ADD(NOW(), INTERVAL 15 MINUTE))";
+        
+        try {
+            try (PreparedStatement ps = conn.prepareStatement(deleteSql)) {
+                ps.setInt(1, userId);
+                ps.executeUpdate();
+            }
+            
+            try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
+                ps.setInt(1, userId);
+                ps.setString(2, token);
+                return ps.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public Integer getUserIdByResetToken(String token) {
+        String sql = "SELECT user_id FROM Password_Reset_Tokens WHERE token = ? AND token_type = 'RESET' AND expires_at > NOW()";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, token);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("user_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean deleteResetToken(String token) {
+        String sql = "DELETE FROM Password_Reset_Tokens WHERE token = ? AND token_type = 'RESET'";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, token);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean resetPassword(int userId, String newPassword) {
+        String sql = "UPDATE Users SET password = ? WHERE user_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+            ps.setString(1, hashedPassword);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean saveVerificationToken(int userId, String token) {
+        String deleteSql = "DELETE FROM Password_Reset_Tokens WHERE user_id = ? AND token_type = 'VERIFY'";
+        String insertSql = "INSERT INTO Password_Reset_Tokens (user_id, token, token_type, expires_at) VALUES (?, ?, 'VERIFY', DATE_ADD(NOW(), INTERVAL 24 HOUR))";
+        try {
+            try (PreparedStatement ps = conn.prepareStatement(deleteSql)) {
+                ps.setInt(1, userId);
+                ps.executeUpdate();
+            }
+            try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
+                ps.setInt(1, userId);
+                ps.setString(2, token);
+                return ps.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public Integer getUserIdByVerificationToken(String token) {
+        String sql = "SELECT user_id FROM Password_Reset_Tokens WHERE token = ? AND token_type = 'VERIFY' AND expires_at > NOW()";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, token);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("user_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean deleteVerificationToken(String token) {
+        String sql = "DELETE FROM Password_Reset_Tokens WHERE token = ? AND token_type = 'VERIFY'";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, token);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean activateUser(int userId) {
+        String sql = "UPDATE Users SET status = 'Active' WHERE user_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private User mapUser(ResultSet rs) throws SQLException {
@@ -231,7 +333,7 @@ public class UserDAO {
         u.setPassword(rs.getString("password"));
         u.setStatus(rs.getString("status"));
         if (rs.getTimestamp("created_at") != null) {
-            u.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+        u.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
         }
         return u;
     }

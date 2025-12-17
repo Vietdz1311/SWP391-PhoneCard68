@@ -1,6 +1,5 @@
 package com.phonecard.model;
 
-import com.phonecard.model.User;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -8,16 +7,13 @@ public class Transaction {
     private long transId;
     private int userId;
     private Long orderId;
-    private String type; // DEPOSIT, PAYMENT
+    private String type; 
     private BigDecimal amount;
     private String description;
-    private String status; // Pending, Success, Failed
+    private String status; 
     private LocalDateTime createdAt;
     
-    // For VNPay
     private String vnpTxnRef;
-    
-    // Related objects
     private User user;
     private Order order;
 

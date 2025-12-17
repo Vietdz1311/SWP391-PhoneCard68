@@ -7,7 +7,6 @@
   <div class="container mx-auto px-4">
     <div class="max-w-xl mx-auto">
       
-      <!-- Page Title -->
       <div class="text-center mb-10">
         <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-lg">
           <i class='bx bx-wallet text-white text-4xl'></i>
@@ -16,7 +15,6 @@
         <p class="text-gray-600 text-lg">Nạp tiền nhanh chóng qua VNPay</p>
       </div>
 
-      <!-- Error Message -->
       <c:if test="${not empty error}">
         <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-xl">
           <div class="flex items-center">
@@ -26,7 +24,6 @@
         </div>
       </c:if>
 
-      <!-- Deposit Form -->
       <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
         <!-- Current Balance -->
         <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-6 text-white">
@@ -39,7 +36,6 @@
             <input type="hidden" name="returnTo" value="${returnTo}">
           </c:if>
           
-          <!-- Amount Input -->
           <div class="mb-6">
             <label class="block text-gray-700 font-bold mb-3">Số tiền muốn nạp</label>
             <div class="relative">
@@ -54,7 +50,6 @@
             <p class="text-sm text-gray-500 mt-2">Tối thiểu: 10,000₫ - Tối đa: 100,000,000₫</p>
           </div>
           
-          <!-- Quick Amount Buttons -->
           <div class="mb-8">
             <p class="text-gray-700 font-medium mb-3">Chọn nhanh:</p>
             <div class="grid grid-cols-3 gap-3">
@@ -85,7 +80,6 @@
             </div>
           </div>
           
-          <!-- Payment Method Info -->
           <div class="bg-gray-50 rounded-xl p-5 mb-8">
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
@@ -98,7 +92,6 @@
             </div>
           </div>
           
-          <!-- Submit Button -->
           <button type="submit" 
                   class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-lg py-4 rounded-xl 
                          hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl 
@@ -109,7 +102,6 @@
         </form>
       </div>
 
-      <!-- Back Link -->
       <div class="mt-6 text-center">
         <a href="${pageContext.request.contextPath}/profile" 
            class="inline-flex items-center text-gray-600 hover:text-green-600 font-medium transition">
@@ -122,9 +114,7 @@
 
 <script>
 function formatAmount(input) {
-  // Remove non-digits
   let value = input.value.replace(/[^\d]/g, '');
-  // Format with thousand separator
   if (value) {
     value = parseInt(value).toLocaleString('vi-VN');
   }
@@ -134,14 +124,12 @@ function formatAmount(input) {
 function setAmount(amount) {
   document.getElementById('amountInput').value = amount.toLocaleString('vi-VN');
   
-  // Highlight selected button
   document.querySelectorAll('.quick-amount').forEach(btn => {
     btn.classList.remove('bg-green-100', 'text-green-700', 'ring-2', 'ring-green-500');
   });
   event.target.classList.add('bg-green-100', 'text-green-700', 'ring-2', 'ring-green-500');
 }
 
-// Format initial value if exists
 document.addEventListener('DOMContentLoaded', function() {
   const input = document.getElementById('amountInput');
   if (input.value) {

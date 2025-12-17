@@ -57,21 +57,18 @@ public class PromotionController extends HttpServlet {
             return;
         }
 
-        // --- LIST & PAGINATION LOGIC ---
         List<Promotion> allPromotions = promotionDAO.getAllPromotions();
         
         String keyword = request.getParameter("keyword");
         String status = request.getParameter("status");
 
-        // 1. Lọc dữ liệu (Filter)
         List<Promotion> filteredList = allPromotions.stream()
                 .filter(p -> keyword == null || keyword.isEmpty() || p.getCode().toLowerCase().contains(keyword.toLowerCase()))
                 .filter(p -> status == null || status.isEmpty() || "All".equals(status) || p.getStatus().equalsIgnoreCase(status))
                 .collect(Collectors.toList());
 
-        // 2. Xử lý Phân trang (Cắt List) - QUAN TRỌNG
         int page = 1;
-        int pageSize = 5; // Giới hạn 5 dòng mỗi trang
+        int pageSize = 5; 
         try {
             if (request.getParameter("page") != null) {
                 page = Integer.parseInt(request.getParameter("page"));
@@ -83,11 +80,9 @@ public class PromotionController extends HttpServlet {
         int totalItems = filteredList.size();
         int totalPages = (int) Math.ceil((double) totalItems / pageSize);
         
-        // Đảm bảo trang hợp lệ
         if (page < 1) page = 1;
         if (page > totalPages && totalPages > 0) page = totalPages;
 
-        // Tính vị trí cắt list
         int start = (page - 1) * pageSize;
         int end = Math.min(start + pageSize, totalItems);
 
@@ -95,16 +90,14 @@ public class PromotionController extends HttpServlet {
         if (start > end || totalItems == 0) {
             pagedList = new ArrayList<>();
         } else {
-            pagedList = filteredList.subList(start, end); // Cắt lấy 5 phần tử
+            pagedList = filteredList.subList(start, end); 
         }
 
-        // 3. Gửi dữ liệu sang JSP
-        request.setAttribute("promotions", pagedList); // Gửi list đã cắt (chỉ 5 dòng)
-        request.setAttribute("totalCount", totalItems); // Tổng số lượng
-        request.setAttribute("currentPage", page);      // Trang hiện tại
-        request.setAttribute("totalPages", totalPages); // Tổng số trang
+        request.setAttribute("promotions", pagedList);
+        request.setAttribute("totalCount", totalItems); 
+        request.setAttribute("currentPage", page);      
+        request.setAttribute("totalPages", totalPages);
         
-        // Gửi lại tham số tìm kiếm để giữ trạng thái
         request.setAttribute("paramKeyword", keyword);
         request.setAttribute("paramStatus", status);
         
@@ -119,7 +112,6 @@ public class PromotionController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
 
-        // Lấy dữ liệu form
         String discountType = request.getParameter("discountType");
         BigDecimal discountValue = new BigDecimal(request.getParameter("discountValue"));
         BigDecimal minOrderValue = new BigDecimal(request.getParameter("minOrderValue"));
@@ -128,27 +120,21 @@ public class PromotionController extends HttpServlet {
         int usageLimit = Integer.parseInt(request.getParameter("usageLimit"));
         int usagePerUser = Integer.parseInt(request.getParameter("usagePerUser"));
 
-        // --- VALIDATE DỮ LIỆU (Server Side) ---
         String errorMsg = null;
         
-        // 1. Validate Phần trăm > 100
         if ("PERCENTAGE".equals(discountType) && discountValue.compareTo(new BigDecimal("100")) > 0) {
             errorMsg = "Giảm giá theo phần trăm không được vượt quá 100%.";
         }
-        // 2. Validate Tiền giảm > Đơn tối thiểu
         else if ("FIXED_AMOUNT".equals(discountType) && discountValue.compareTo(minOrderValue) > 0) {
             errorMsg = "Số tiền giảm (" + discountValue + ") không được lớn hơn Đơn hàng tối thiểu (" + minOrderValue + ").";
         }
-        // 3. Validate Ngày tháng
         else if (startDate.isAfter(endDate)) {
             errorMsg = "Ngày bắt đầu phải trước ngày kết thúc.";
         }
 
-        // Nếu có lỗi, trả về trang cũ
         if (errorMsg != null) {
             request.setAttribute("error", errorMsg);
             
-            // Tạo object tạm để giữ lại dữ liệu form
             Promotion tempP = new Promotion();
             tempP.setDiscountType(discountType);
             tempP.setDiscountValue(discountValue);
@@ -172,7 +158,6 @@ public class PromotionController extends HttpServlet {
             return;
         }
 
-        // --- XỬ LÝ DATABASE ---
         if ("create".equals(action)) {
             String code = request.getParameter("code").toUpperCase().trim();
             if (promotionDAO.checkCodeExists(code)) {

@@ -1,7 +1,5 @@
 package com.phonecard.model;
 
-import com.phonecard.model.CardProduct;
-import com.phonecard.model.User;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -13,10 +11,9 @@ public class Order {
     private BigDecimal price;
     private BigDecimal discountAmount;
     private BigDecimal finalAmount;
-    private String status; // Pending, Completed, Cancelled
+    private String status;
     private LocalDateTime orderDate;
     
-    // Related objects
     private User user;
     private CardInventory cardInventory;
     private CardProduct cardProduct;

@@ -1,12 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
-
 package com.phonecard.controller;
 
 import com.phonecard.dao.UserDAO;
 import com.phonecard.model.User;
+import org.mindrot.jbcrypt.BCrypt;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -16,10 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-/**
- *
- * @author 3DO TECH
- */
 @WebServlet(name = "ProfileController", urlPatterns = {"/profile"})
 public class ProfileController extends HttpServlet {
     private UserDAO userDAO = new UserDAO();
@@ -77,7 +69,7 @@ public class ProfileController extends HttpServlet {
             String confirmPassword = request.getParameter("confirmPassword");
 
             User dbUser = userDAO.getUserById(user.getUserId());
-            if (!dbUser.getPassword().equals(oldPassword)) { 
+            if (dbUser == null || !BCrypt.checkpw(oldPassword, dbUser.getPassword())) {
                 request.setAttribute("error", "Mật khẩu cũ không đúng!");
             } else if (!newPassword.equals(confirmPassword)) {
                 request.setAttribute("error", "Mật khẩu mới không khớp!");

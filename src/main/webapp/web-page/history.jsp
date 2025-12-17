@@ -7,13 +7,11 @@
   <div class="container mx-auto px-4">
     <div class="max-w-5xl mx-auto">
       
-      <!-- Page Title -->
       <div class="mb-8">
         <h1 class="text-4xl font-bold text-gray-900 mb-2">Lịch sử giao dịch</h1>
         <p class="text-gray-600">Theo dõi các đơn hàng và giao dịch của bạn</p>
       </div>
 
-      <!-- Tabs -->
       <div class="bg-white rounded-t-2xl shadow-sm border-b border-gray-200">
         <div class="flex">
           <a href="?tab=orders" 
@@ -27,7 +25,6 @@
         </div>
       </div>
 
-      <!-- Content -->
       <div class="bg-white rounded-b-2xl shadow-xl overflow-hidden">
         
         <c:choose>
@@ -79,7 +76,6 @@
           </c:when>
           
           <c:otherwise>
-            <!-- Orders Tab -->
             <c:choose>
               <c:when test="${not empty orders}">
                 <div class="divide-y divide-gray-100">

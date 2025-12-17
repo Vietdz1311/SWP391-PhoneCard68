@@ -12,9 +12,6 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
-/**
- * Controller hiển thị kết quả mua hàng thành công
- */
 @WebServlet(name = "PurchaseResultController", urlPatterns = {"/purchase-result"})
 public class PurchaseResultController extends HttpServlet {
     
@@ -24,7 +21,6 @@ public class PurchaseResultController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // Kiểm tra đăng nhập
         HttpSession session = request.getSession(false);
         User user = (session != null) ? (User) session.getAttribute("user") : null;
         
@@ -43,7 +39,6 @@ public class PurchaseResultController extends HttpServlet {
             long orderId = Long.parseLong(orderIdStr);
             Order order = orderDAO.getOrderById(orderId);
             
-            // Kiểm tra order thuộc về user đang đăng nhập
             if (order == null || order.getUserId() != user.getUserId()) {
                 response.sendRedirect(request.getContextPath() + "/products");
                 return;

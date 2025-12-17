@@ -1,12 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
 package com.phonecard.model;
 
-import com.phonecard.model.User;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class BlogPost {
     private int postId;
@@ -17,11 +12,13 @@ public class BlogPost {
     private String thumbnailUrl;
     private boolean isActive;
     private LocalDateTime publishedAt;
-    private User author; // Join với Users
+    private User author; 
+    
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     public BlogPost() {}
 
-    // Getters and Setters
     public int getPostId() { return postId; }
     public void setPostId(int postId) { this.postId = postId; }
     public int getUserId() { return userId; }
@@ -40,4 +37,12 @@ public class BlogPost {
     public void setPublishedAt(LocalDateTime publishedAt) { this.publishedAt = publishedAt; }
     public User getAuthor() { return author; }
     public void setAuthor(User author) { this.author = author; }
+    
+    public String getFormattedDate() {
+        return publishedAt != null ? publishedAt.format(DATE_FORMATTER) : "";
+    }
+    
+    public String getFormattedDateTime() {
+        return publishedAt != null ? publishedAt.format(DATETIME_FORMATTER) : "";
+    }
 }

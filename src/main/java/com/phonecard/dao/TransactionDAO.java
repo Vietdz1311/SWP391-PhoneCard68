@@ -8,11 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TransactionDAO {
-
-    /**
-     * Tạo giao dịch mới
-     * @return trans_id của giao dịch vừa tạo, -1 nếu thất bại
-     */
     public long createTransaction(Transaction trans, Connection conn) throws SQLException {
         String sql = "INSERT INTO Transactions (user_id, order_id, type, amount, description, status) " +
                      "VALUES (?, ?, ?, ?, ?, ?)";
@@ -40,9 +35,6 @@ public class TransactionDAO {
         return -1;
     }
 
-    /**
-     * Tạo giao dịch mới (tự quản lý connection)
-     */
     public long createTransaction(Transaction trans) {
         try (Connection conn = DBContext.getConnection()) {
             return createTransaction(trans, conn);
@@ -52,9 +44,6 @@ public class TransactionDAO {
         }
     }
 
-    /**
-     * Cập nhật trạng thái giao dịch
-     */
     public boolean updateTransactionStatus(long transId, String status, Connection conn) throws SQLException {
         String sql = "UPDATE Transactions SET status = ? WHERE trans_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -64,9 +53,6 @@ public class TransactionDAO {
         }
     }
 
-    /**
-     * Cập nhật trạng thái giao dịch (tự quản lý connection)
-     */
     public boolean updateTransactionStatus(long transId, String status) {
         try (Connection conn = DBContext.getConnection()) {
             return updateTransactionStatus(transId, status, conn);
@@ -76,9 +62,6 @@ public class TransactionDAO {
         }
     }
 
-    /**
-     * Lấy giao dịch theo ID
-     */
     public Transaction getTransactionById(long transId) {
         String sql = "SELECT * FROM Transactions WHERE trans_id = ?";
         try (Connection conn = DBContext.getConnection();
@@ -95,9 +78,6 @@ public class TransactionDAO {
         return null;
     }
 
-    /**
-     * Lấy giao dịch pending theo vnp_TxnRef (trans_id)
-     */
     public Transaction getPendingTransactionById(long transId) {
         String sql = "SELECT * FROM Transactions WHERE trans_id = ? AND status = 'Pending'";
         try (Connection conn = DBContext.getConnection();
@@ -114,9 +94,6 @@ public class TransactionDAO {
         return null;
     }
 
-    /**
-     * Lấy danh sách giao dịch theo user_id
-     */
     public List<Transaction> getTransactionsByUserId(int userId, int page, int size) {
         List<Transaction> list = new ArrayList<>();
         String sql = "SELECT * FROM Transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT ?, ?";
@@ -136,9 +113,6 @@ public class TransactionDAO {
         return list;
     }
 
-    /**
-     * Đếm tổng số giao dịch của user
-     */
     public int countTransactionsByUserId(int userId) {
         String sql = "SELECT COUNT(*) FROM Transactions WHERE user_id = ?";
         try (Connection conn = DBContext.getConnection();

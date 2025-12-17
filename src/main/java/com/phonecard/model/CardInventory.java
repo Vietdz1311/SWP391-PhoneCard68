@@ -1,8 +1,8 @@
 package com.phonecard.model;
 
-import com.phonecard.model.CardProduct;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class CardInventory {
     private long cardId;
@@ -10,11 +10,13 @@ public class CardInventory {
     private String serialNumber;
     private String cardCode;
     private LocalDate expiryDate;
-    private String status; // Available, Sold, Error
+    private String status; 
     private LocalDateTime importedAt;
     
-    // Related objects
     private CardProduct cardProduct;
+    
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     public CardInventory() {}
 
@@ -41,5 +43,21 @@ public class CardInventory {
 
     public CardProduct getCardProduct() { return cardProduct; }
     public void setCardProduct(CardProduct cardProduct) { this.cardProduct = cardProduct; }
+    
+    public String getFormattedExpiryDate() {
+        return expiryDate != null ? expiryDate.format(DATE_FORMATTER) : "";
+    }
+    
+    public String getFormattedImportedAt() {
+        return importedAt != null ? importedAt.format(DATE_FORMATTER) : "";
+    }
+    
+    public boolean isExpired() {
+        return expiryDate != null && expiryDate.isBefore(LocalDate.now());
+    }
+
+    public boolean getExpired() {
+        return isExpired();
+    }
 }
 

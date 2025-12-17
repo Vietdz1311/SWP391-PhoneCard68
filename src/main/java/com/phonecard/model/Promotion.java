@@ -6,20 +6,18 @@ import java.time.LocalDateTime;
 public class Promotion {
     private int promotionId;
     private String code;
-    private String discountType; // 'PERCENTAGE' hoặc 'FIXED_AMOUNT'
+    private String discountType;
     private BigDecimal discountValue;
     private BigDecimal minOrderValue;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private int usageLimit;
     private int usagePerUser;
-    private String status; // 'Active' hoặc 'Ended'
+    private String status; 
 
-    // Constructor mặc định
     public Promotion() {
     }
 
-    // Constructor đầy đủ
     public Promotion(int promotionId, String code, String discountType, BigDecimal discountValue, 
                      BigDecimal minOrderValue, LocalDateTime startDate, LocalDateTime endDate, 
                      int usageLimit, int usagePerUser, String status) {
@@ -35,7 +33,6 @@ public class Promotion {
         this.status = status;
     }
 
-    // --- GETTERS AND SETTERS ---
 
     public int getPromotionId() {
         return promotionId;

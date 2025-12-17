@@ -9,7 +9,6 @@
       
       <c:choose>
         <c:when test="${success}">
-          <!-- Success -->
           <div class="bg-white rounded-3xl shadow-2xl overflow-hidden text-center">
             <div class="bg-gradient-to-r from-green-400 to-emerald-600 px-8 py-12">
               <div class="w-24 h-24 bg-white rounded-full mx-auto flex items-center justify-center mb-6 shadow-lg">
@@ -22,7 +21,6 @@
             </div>
             
             <div class="p-8">
-              <!-- New Balance -->
               <div class="bg-gray-50 rounded-xl p-6 mb-8">
                 <p class="text-gray-600 text-sm mb-2">Số dư ví hiện tại</p>
                 <p class="text-4xl font-bold text-green-600">
@@ -30,7 +28,6 @@
                 </p>
               </div>
               
-              <!-- Action Buttons -->
               <div class="flex flex-col sm:flex-row gap-4">
                 <a href="${pageContext.request.contextPath}/products" 
                    class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 rounded-xl text-center hover:from-blue-700 hover:to-indigo-700 transition shadow-lg">
@@ -46,7 +43,6 @@
         </c:when>
         
         <c:otherwise>
-          <!-- Failed -->
           <div class="bg-white rounded-3xl shadow-2xl overflow-hidden text-center">
             <div class="bg-gradient-to-r from-red-400 to-pink-600 px-8 py-12">
               <div class="w-24 h-24 bg-white rounded-full mx-auto flex items-center justify-center mb-6 shadow-lg">

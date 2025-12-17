@@ -14,16 +14,16 @@
 
         <div class="flex flex-wrap items-center text-gray-600 mb-10 gap-6">
           <span class="flex items-center"><i class='bx bx-user text-xl mr-2'></i> ${post.author.username}</span>
-          <span class="flex items-center"><i class='bx bx-calendar text-xl mr-2'></i>${post.publishedAt}</span>
-          <span class="flex items-center"><i class='bx bx-time text-xl mr-2'></i> ${post.publishedAt}</span>
+          <span class="flex items-center"><i class='bx bx-calendar text-xl mr-2'></i> ${post.formattedDate}</span>
+          <span class="flex items-center"><i class='bx bx-time text-xl mr-2'></i> ${post.formattedDateTime}</span>
         </div>
 
         <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
-          ${post.content} <!-- Content có thể chứa HTML (từ editor) -->
+          ${post.content} 
         </div>
 
         <div class="mt-12 pt-8 border-t border-gray-200">
-          <a href="blog" class="inline-flex items-center text-blue-600 font-bold hover:text-blue-800 transition">
+          <a href="${pageContext.request.contextPath}/blog" class="inline-flex items-center text-blue-600 font-bold hover:text-blue-800 transition">
             <i class='bx bx-chevron-left mr-2'></i> Quay lại danh sách tin tức
           </a>
         </div>

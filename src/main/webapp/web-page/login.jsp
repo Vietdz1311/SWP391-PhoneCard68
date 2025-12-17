@@ -30,20 +30,26 @@
 <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
     <h2 class="text-3xl font-bold text-center text-gray-900 mb-8">Đăng nhập</h2>
     <c:if test="${not empty param.success}">
-                    <div class="text-green-600 text-center mb-4">${param.success}</div>
-                </c:if>
-        <c:if test="${not empty param.error}">
-            <div class="text-red-600 text-center mb-4">${param.error}</div>
-        </c:if>
+        <div class="text-green-600 text-center mb-4">${param.success}</div>
+    </c:if>
+    <c:if test="${not empty param.error}">
+        <div class="text-red-600 text-center mb-4">${param.error}</div>
+    </c:if>
+    <c:if test="${not empty error}">
+        <div class="text-red-600 text-center mb-4">${error}</div>
+    </c:if>
     <form action="auth?action=login" method="post">
         <input type="hidden" name="action" value="login">
         <div class="mb-6">
             <label class="block text-gray-700 font-medium mb-2">Tên đăng nhập hoặc Email</label>
             <input type="text" name="username" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
-        <div class="mb-6">
+        <div class="mb-4">
             <label class="block text-gray-700 font-medium mb-2">Mật khẩu</label>
             <input type="password" name="password" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="mb-6 text-right">
+            <a href="auth?action=forget" class="text-blue-600 text-sm hover:underline">Quên mật khẩu?</a>
         </div>
         <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition duration-300 shadow-lg">
             Đăng nhập

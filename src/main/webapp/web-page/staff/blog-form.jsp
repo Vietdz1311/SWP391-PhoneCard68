@@ -7,10 +7,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${isEdit ? 'Chỉnh sửa' : 'Tạo'} Bài viết - Staff</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100 min-h-screen font-inter">
 
 <!-- Sidebar -->
 <div class="flex">
@@ -24,11 +28,28 @@
         </div>
         
         <nav class="mt-6">
+            <div class="px-6 mb-2 text-xs font-bold text-slate-500 uppercase">Quản lý người dùng</div>
+            <a href="${pageContext.request.contextPath}/staff/users" 
+               class="flex items-center gap-3 px-6 py-3 text-slate-300 hover:bg-slate-700/50 transition">
+                <i class='bx bx-user text-xl'></i>
+                Danh sách tài khoản
+            </a>
+            
+            <div class="px-6 mb-2 mt-6 text-xs font-bold text-slate-500 uppercase">Sản phẩm</div>
+            <a href="${pageContext.request.contextPath}/staff/products" 
+               class="flex items-center gap-3 px-6 py-3 text-slate-300 hover:bg-slate-700/50 transition">
+                <i class='bx bx-package text-xl'></i>
+                Quản lý Sản phẩm
+            </a>
+            
+            <div class="px-6 mb-2 mt-6 text-xs font-bold text-slate-500 uppercase">Nội dung</div>
             <a href="${pageContext.request.contextPath}/staff/blogs" 
                class="flex items-center gap-3 px-6 py-3 text-white bg-blue-600/20 border-r-4 border-blue-500">
                 <i class='bx bx-news text-xl'></i>
                 Quản lý Bài viết
             </a>
+            
+            <div class="px-6 mb-2 mt-6 text-xs font-bold text-slate-500 uppercase">Khác</div>
             <a href="${pageContext.request.contextPath}/home" 
                class="flex items-center gap-3 px-6 py-3 text-slate-300 hover:bg-slate-700/50 transition">
                 <i class='bx bx-home text-xl'></i>
@@ -36,7 +57,6 @@
             </a>
         </nav>
         
-        <!-- User Info -->
         <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
@@ -50,7 +70,6 @@
         </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="ml-64 flex-1 p-8">
         <!-- Header -->
         <div class="flex items-center gap-4 mb-8">
@@ -64,7 +83,6 @@
             </div>
         </div>
 
-        <!-- Error Message -->
         <c:if test="${not empty error}">
             <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-r-xl flex items-center">
                 <i class='bx bx-error-circle text-red-500 text-2xl mr-3'></i>
@@ -72,7 +90,6 @@
             </div>
         </c:if>
 
-        <!-- Form -->
         <form action="${pageContext.request.contextPath}/staff/blogs" method="post" class="space-y-6">
             <input type="hidden" name="action" value="${isEdit ? 'edit' : 'create'}">
             <c:if test="${isEdit}">
@@ -94,7 +111,6 @@
                                required>
                     </div>
 
-                    <!-- Content -->
                     <div class="bg-white rounded-xl shadow-sm p-6">
                         <label class="block text-gray-700 font-bold mb-3">
                             Nội dung <span class="text-red-500">*</span>
@@ -110,15 +126,12 @@
                     </div>
                 </div>
 
-                <!-- Sidebar -->
                 <div class="space-y-6">
-                    <!-- Publish Settings -->
                     <div class="bg-white rounded-xl shadow-sm p-6">
                         <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class='bx bx-cog'></i> Cài đặt
                         </h3>
                         
-                        <!-- Status Toggle -->
                         <div class="flex items-center justify-between py-3 border-b border-gray-100">
                             <div>
                                 <p class="font-medium text-gray-700">Trạng thái</p>
@@ -137,13 +150,12 @@
                                     <i class='bx bx-user mr-1'></i> Tác giả: ${post.author.username}
                                 </p>
                                 <p class="text-sm text-gray-500 mt-1">
-                                    <i class='bx bx-calendar mr-1'></i> Ngày tạo: ${post.publishedAt}
+                                    <i class='bx bx-calendar mr-1'></i> Ngày tạo: ${post.formattedDateTime}
                                 </p>
                             </div>
                         </c:if>
                     </div>
 
-                    <!-- Thumbnail -->
                     <div class="bg-white rounded-xl shadow-sm p-6">
                         <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class='bx bx-image'></i> Ảnh đại diện
@@ -154,7 +166,6 @@
                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                                oninput="previewImage()">
                         
-                        <!-- Preview -->
                         <div class="mt-4">
                             <img id="thumbnailPreview" 
                                  src="${isEdit && not empty post.thumbnailUrl ? post.thumbnailUrl : 'https://via.placeholder.com/400x250?text=Preview'}" 
@@ -164,7 +175,6 @@
                         <p class="text-xs text-gray-500 mt-2">Kích thước khuyến nghị: 800x500px</p>
                     </div>
 
-                    <!-- Actions -->
                     <div class="bg-white rounded-xl shadow-sm p-6">
                         <button type="submit" 
                                 class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition shadow-lg flex items-center justify-center gap-2">

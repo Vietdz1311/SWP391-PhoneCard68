@@ -1,12 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
 package com.phonecard.dao;
 
 import com.phonecard.config.DBContext;
-import com.phonecard.dao.UserDAO;
 import com.phonecard.model.BlogPost;
 import com.phonecard.model.User;
 
@@ -119,7 +113,7 @@ public List<BlogPost> getLatestBlogs(int limit) {
 
     try (Connection conn = DBContext.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setInt(1, limit);  // LIMIT ở cuối
+        ps.setInt(1, limit); 
         try (ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 BlogPost post = mapPost(rs);
@@ -132,9 +126,6 @@ public List<BlogPost> getLatestBlogs(int limit) {
     return list;
 }
 
-    /**
-     * Lấy blog theo ID (cho staff edit)
-     */
     public BlogPost getBlogById(int postId) {
         String sql = "SELECT * FROM Blog_Posts WHERE post_id = ?";
         try (Connection conn = DBContext.getConnection();
@@ -147,9 +138,6 @@ public List<BlogPost> getLatestBlogs(int limit) {
         return null;
     }
 
-    /**
-     * Cập nhật blog
-     */
     public boolean updateBlog(BlogPost post) {
         String sql = "UPDATE Blog_Posts SET title = ?, slug = ?, content = ?, thumbnail_url = ?, is_active = ? WHERE post_id = ?";
         try (Connection conn = DBContext.getConnection();
@@ -165,9 +153,6 @@ public List<BlogPost> getLatestBlogs(int limit) {
         return false;
     }
 
-    /**
-     * Xóa blog
-     */
     public boolean deleteBlog(int postId) {
         String sql = "DELETE FROM Blog_Posts WHERE post_id = ?";
         try (Connection conn = DBContext.getConnection();
@@ -178,9 +163,6 @@ public List<BlogPost> getLatestBlogs(int limit) {
         return false;
     }
 
-    /**
-     * Kiểm tra slug đã tồn tại chưa (trừ bài viết hiện tại)
-     */
     public boolean isSlugExists(String slug, int excludePostId) {
         String sql = "SELECT COUNT(*) FROM Blog_Posts WHERE slug = ? AND post_id != ?";
         try (Connection conn = DBContext.getConnection();
@@ -194,9 +176,6 @@ public List<BlogPost> getLatestBlogs(int limit) {
         return false;
     }
 
-    /**
-     * Tạo slug từ title
-     */
     public String generateSlug(String title) {
         if (title == null) return "";
         String slug = title.toLowerCase()

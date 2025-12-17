@@ -9,33 +9,21 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class VNPayUtil {
-    
-    /**
-     * Tạo URL thanh toán VNPay
-     * @param amount Số tiền thanh toán (VND)
-     * @param orderInfo Thông tin đơn hàng
-     * @param txnRef Mã giao dịch (thường là trans_id)
-     * @param ipAddress IP của khách hàng
-     * @param returnUrl URL trả về sau thanh toán
-     * @return URL thanh toán VNPay
-     */
     public static String createPaymentUrl(long amount, String orderInfo, String txnRef, 
                                            String ipAddress, String returnUrl) {
         Map<String, String> vnpParams = new TreeMap<>();
         
-        // Thời gian tạo giao dịch
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         String vnpCreateDate = formatter.format(cld.getTime());
         
-        // Thời gian hết hạn (15 phút)
         cld.add(Calendar.MINUTE, 15);
         String vnpExpireDate = formatter.format(cld.getTime());
         
         vnpParams.put("vnp_Version", VNPayConfig.VNP_VERSION);
         vnpParams.put("vnp_Command", VNPayConfig.VNP_COMMAND);
         vnpParams.put("vnp_TmnCode", VNPayConfig.VNP_TMN_CODE);
-        vnpParams.put("vnp_Amount", String.valueOf(amount * 100)); // VNPay yêu cầu x100
+        vnpParams.put("vnp_Amount", String.valueOf(amount * 100));
         vnpParams.put("vnp_CurrCode", VNPayConfig.VNP_CURRENCY_CODE);
         vnpParams.put("vnp_TxnRef", txnRef);
         vnpParams.put("vnp_OrderInfo", orderInfo);
@@ -46,7 +34,6 @@ public class VNPayUtil {
         vnpParams.put("vnp_CreateDate", vnpCreateDate);
         vnpParams.put("vnp_ExpireDate", vnpExpireDate);
         
-        // Build query string và hash data
         StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
         
@@ -57,7 +44,6 @@ public class VNPayUtil {
             String fieldValue = entry.getValue();
             
             if (fieldValue != null && !fieldValue.isEmpty()) {
-                // Build hash data
                 hashData.append(fieldName);
                 hashData.append('=');
                 try {
@@ -66,7 +52,6 @@ public class VNPayUtil {
                     hashData.append(fieldValue);
                 }
                 
-                // Build query
                 try {
                     query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
                     query.append('=');
@@ -91,23 +76,16 @@ public class VNPayUtil {
         return VNPayConfig.VNP_PAY_URL + "?" + queryUrl;
     }
     
-    /**
-     * Xác thực chữ ký trả về từ VNPay
-     * @param params Map các tham số từ VNPay
-     * @return true nếu chữ ký hợp lệ
-     */
     public static boolean validateSignature(Map<String, String> params) {
         String vnpSecureHash = params.get("vnp_SecureHash");
         if (vnpSecureHash == null || vnpSecureHash.isEmpty()) {
             return false;
         }
         
-        // Remove hash params
         Map<String, String> fields = new TreeMap<>(params);
         fields.remove("vnp_SecureHash");
         fields.remove("vnp_SecureHashType");
         
-        // Build hash data
         StringBuilder hashData = new StringBuilder();
         Iterator<Map.Entry<String, String>> itr = fields.entrySet().iterator();
         while (itr.hasNext()) {
@@ -134,9 +112,6 @@ public class VNPayUtil {
         return calculatedHash.equalsIgnoreCase(vnpSecureHash);
     }
     
-    /**
-     * Tạo HMAC SHA512
-     */
     public static String hmacSHA512(String key, String data) {
         try {
             Mac hmac512 = Mac.getInstance("HmacSHA512");
@@ -155,9 +130,6 @@ public class VNPayUtil {
         }
     }
     
-    /**
-     * Lấy IP address từ request
-     */
     public static String getIpAddress(jakarta.servlet.http.HttpServletRequest request) {
         String ipAddress = request.getHeader("X-Forwarded-For");
         if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
@@ -175,9 +147,6 @@ public class VNPayUtil {
         return ipAddress;
     }
     
-    /**
-     * Lấy base URL từ request
-     */
     public static String getBaseUrl(jakarta.servlet.http.HttpServletRequest request) {
         String scheme = request.getScheme();
         String serverName = request.getServerName();
@@ -194,9 +163,6 @@ public class VNPayUtil {
         return url.toString();
     }
     
-    /**
-     * Chuyển response code thành message tiếng Việt
-     */
     public static String getResponseMessage(String responseCode) {
         return switch (responseCode) {
             case "00" -> "Giao dịch thành công";

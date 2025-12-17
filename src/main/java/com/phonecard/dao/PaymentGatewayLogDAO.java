@@ -6,10 +6,6 @@ import com.phonecard.model.PaymentGatewayLog;
 import java.sql.*;
 
 public class PaymentGatewayLogDAO {
-
-    /**
-     * Tạo log giao dịch với cổng thanh toán
-     */
     public long createLog(PaymentGatewayLog log, Connection conn) throws SQLException {
         String sql = "INSERT INTO Payment_Gateway_Logs (trans_id, gateway_name, gateway_trans_id, response_code) " +
                      "VALUES (?, ?, ?, ?)";
@@ -31,9 +27,6 @@ public class PaymentGatewayLogDAO {
         return -1;
     }
 
-    /**
-     * Tạo log giao dịch (tự quản lý connection)
-     */
     public long createLog(PaymentGatewayLog log) {
         try (Connection conn = DBContext.getConnection()) {
             return createLog(log, conn);
@@ -43,9 +36,6 @@ public class PaymentGatewayLogDAO {
         }
     }
 
-    /**
-     * Lấy log theo trans_id
-     */
     public PaymentGatewayLog getLogByTransId(long transId) {
         String sql = "SELECT * FROM Payment_Gateway_Logs WHERE trans_id = ? ORDER BY created_at DESC LIMIT 1";
         try (Connection conn = DBContext.getConnection();

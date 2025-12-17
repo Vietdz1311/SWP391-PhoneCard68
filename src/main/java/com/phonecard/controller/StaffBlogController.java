@@ -15,10 +15,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-/**
- * Controller quản lý Blog cho Staff/Admin
- * URL: /staff/blogs
- */
 @WebServlet(name = "StaffBlogController", urlPatterns = {"/staff/blogs"})
 public class StaffBlogController extends HttpServlet {
     
@@ -29,7 +25,6 @@ public class StaffBlogController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // Kiểm tra quyền Staff/Admin
         if (!checkStaffPermission(request, response)) {
             return;
         }
@@ -45,6 +40,9 @@ public class StaffBlogController extends HttpServlet {
             case "edit":
                 showEditForm(request, response);
                 break;
+            case "preview":
+                previewBlog(request, response);
+                break;
             case "delete":
                 deleteBlog(request, response);
                 break;
@@ -59,7 +57,6 @@ public class StaffBlogController extends HttpServlet {
         
         request.setCharacterEncoding("UTF-8");
         
-        // Kiểm tra quyền Staff/Admin
         if (!checkStaffPermission(request, response)) {
             return;
         }
@@ -73,9 +70,6 @@ public class StaffBlogController extends HttpServlet {
         }
     }
     
-    /**
-     * Kiểm tra quyền Staff hoặc Admin
-     */
     private boolean checkStaffPermission(HttpServletRequest request, HttpServletResponse response) 
             throws IOException {
         HttpSession session = request.getSession(false);
@@ -94,9 +88,6 @@ public class StaffBlogController extends HttpServlet {
         return true;
     }
     
-    /**
-     * Hiển thị danh sách bài viết
-     */
     private void listBlogs(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
@@ -107,7 +98,6 @@ public class StaffBlogController extends HttpServlet {
             if (page < 1) page = 1;
         } catch (Exception ignored) {}
         
-        // Lấy tất cả bài viết (cả active và inactive)
         List<BlogPost> posts = blogDAO.getAllBlogs(search, page, false);
         int total = blogDAO.getTotalBlogs(search, false);
         int totalPages = (int) Math.ceil((double) total / PAGE_SIZE);
@@ -119,18 +109,12 @@ public class StaffBlogController extends HttpServlet {
         
         request.getRequestDispatcher("/web-page/staff/blog-list.jsp").forward(request, response);
     }
-    
-    /**
-     * Hiển thị form tạo bài viết mới
-     */
+  
     private void showCreateForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.getRequestDispatcher("/web-page/staff/blog-form.jsp").forward(request, response);
     }
-    
-    /**
-     * Hiển thị form chỉnh sửa bài viết
-     */
+   
     private void showEditForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
@@ -153,9 +137,27 @@ public class StaffBlogController extends HttpServlet {
         }
     }
     
-    /**
-     * Xử lý tạo bài viết mới
-     */
+    private void previewBlog(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        try {
+            int postId = Integer.parseInt(request.getParameter("id"));
+            BlogPost post = blogDAO.getBlogById(postId);
+            
+            if (post == null) {
+                response.sendRedirect(request.getContextPath() + "/staff/blogs?error=" + 
+                    URLEncoder.encode("Bài viết không tồn tại", StandardCharsets.UTF_8));
+                return;
+            }
+            
+            request.setAttribute("post", post);
+            request.getRequestDispatcher("/web-page/staff/blog-preview.jsp").forward(request, response);
+            
+        } catch (NumberFormatException e) {
+            response.sendRedirect(request.getContextPath() + "/staff/blogs");
+        }
+    }
+ 
     private void createBlog(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
@@ -167,7 +169,6 @@ public class StaffBlogController extends HttpServlet {
         String thumbnailUrl = request.getParameter("thumbnailUrl");
         boolean isActive = "on".equals(request.getParameter("isActive")) || "true".equals(request.getParameter("isActive"));
         
-        // Validate
         if (title == null || title.trim().isEmpty()) {
             request.setAttribute("error", "Tiêu đề không được để trống");
             request.getRequestDispatcher("/web-page/staff/blog-form.jsp").forward(request, response);
@@ -182,7 +183,6 @@ public class StaffBlogController extends HttpServlet {
             return;
         }
         
-        // Tạo slug từ title
         String slug = blogDAO.generateSlug(title);
         
         BlogPost post = new BlogPost();
@@ -205,9 +205,6 @@ public class StaffBlogController extends HttpServlet {
         }
     }
     
-    /**
-     * Xử lý cập nhật bài viết
-     */
     private void updateBlog(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
@@ -225,7 +222,6 @@ public class StaffBlogController extends HttpServlet {
                 return;
             }
             
-            // Validate
             if (title == null || title.trim().isEmpty()) {
                 request.setAttribute("error", "Tiêu đề không được để trống");
                 request.setAttribute("post", existingPost);
@@ -234,7 +230,6 @@ public class StaffBlogController extends HttpServlet {
                 return;
             }
             
-            // Cập nhật slug nếu title thay đổi
             String slug = existingPost.getSlug();
             if (!title.trim().equals(existingPost.getTitle())) {
                 slug = blogDAO.generateSlug(title);
@@ -261,9 +256,6 @@ public class StaffBlogController extends HttpServlet {
         }
     }
     
-    /**
-     * Xử lý xóa bài viết
-     */
     private void deleteBlog(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         

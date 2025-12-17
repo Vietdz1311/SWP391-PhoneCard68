@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
@@ -28,6 +29,15 @@
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center">
 <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
     <h2 class="text-3xl font-bold text-center mb-8">Đăng ký tài khoản</h2>
+    <c:if test="${not empty param.success}">
+        <div class="text-green-600 text-center mb-4">${param.success}</div>
+    </c:if>
+    <c:if test="${not empty param.error}">
+        <div class="text-red-600 text-center mb-4">${param.error}</div>
+    </c:if>
+    <c:if test="${not empty error}">
+        <div class="text-red-600 text-center mb-4">${error}</div>
+    </c:if>
     <form action="auth?action=register" method="post">
         <div class="mb-6">
             <label class="block text-gray-700 font-medium mb-2">Tên đăng nhập</label>

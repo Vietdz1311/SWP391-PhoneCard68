@@ -151,7 +151,6 @@
 function copyCardCode() {
   const cardCode = document.getElementById('cardCode').textContent;
   navigator.clipboard.writeText(cardCode).then(() => {
-    // Show toast notification
     const toast = document.createElement('div');
     toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg z-50 animate-bounce';
     toast.innerHTML = '<i class="bx bx-check-circle mr-2"></i> Đã sao chép mã thẻ!';

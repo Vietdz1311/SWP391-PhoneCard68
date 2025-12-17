@@ -3,7 +3,7 @@
 
 <footer class="bg-gradient-to-b from-gray-900 to-black text-white mt-auto">
   <!-- Main Footer Content -->
-  <div class="container mx-auto px-4 py-16">
+  <div class="max-w-6xl mx-auto px-4 py-16">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
       
       <div class="space-y-6">
@@ -33,11 +33,11 @@
       <div class="space-y-6">
         <h4 class="text-2xl font-bold text-blue-400">Liên kết nhanh</h4>
         <ul class="space-y-4">
-          <li><a href="home" class="text-gray-300 hover:text-white transition duration-200 flex items-center"><i class='bx bx-chevron-right mr-2'></i>Trang chủ</a></li>
-          <li><a href="products" class="text-gray-300 hover:text-white transition duration-200 flex items-center"><i class='bx bx-chevron-right mr-2'></i>Mua thẻ cào</a></li>
-          <li><a href="blog" class="text-gray-300 hover:text-white transition duration-200 flex items-center"><i class='bx bx-chevron-right mr-2'></i>Tin tức & Khuyến mãi</a></li>
-          <li><a href="history" class="text-gray-300 hover:text-white transition duration-200 flex items-center"><i class='bx bx-chevron-right mr-2'></i>Lịch sử giao dịch</a></li>
-          <li><a href="profile" class="text-gray-300 hover:text-white transition duration-200 flex items-center"><i class='bx bx-chevron-right mr-2'></i>Thông tin tài khoản</a></li>
+          <li><a href="${pageContext.request.contextPath}/home" class="text-gray-300 hover:text-white transition duration-200 flex items-center"><i class='bx bx-chevron-right mr-2'></i>Trang chủ</a></li>
+          <li><a href="${pageContext.request.contextPath}/products" class="text-gray-300 hover:text-white transition duration-200 flex items-center"><i class='bx bx-chevron-right mr-2'></i>Mua thẻ cào</a></li>
+          <li><a href="${pageContext.request.contextPath}/blog" class="text-gray-300 hover:text-white transition duration-200 flex items-center"><i class='bx bx-chevron-right mr-2'></i>Tin tức & Khuyến mãi</a></li>
+          <li><a href="${pageContext.request.contextPath}/history" class="text-gray-300 hover:text-white transition duration-200 flex items-center"><i class='bx bx-chevron-right mr-2'></i>Lịch sử giao dịch</a></li>
+          <li><a href="${pageContext.request.contextPath}/profile" class="text-gray-300 hover:text-white transition duration-200 flex items-center"><i class='bx bx-chevron-right mr-2'></i>Thông tin tài khoản</a></li>
         </ul>
       </div>
       
@@ -80,22 +80,12 @@
   
   <!-- Bottom Bar -->
   <div class="border-t border-gray-800 py-6">
-    <div class="container mx-auto px-4 text-center text-gray-400">
+    <div class="max-w-6xl mx-auto px-4 text-center text-gray-400">
       <p>&copy; <script>document.write(new Date().getFullYear())</script> PhoneCard.vn - All rights reserved.</p>
       <p class="text-sm mt-2">Thiết kế & phát triển với ❤️ bởi đội ngũ PhoneCard</p>
     </div>
   </div>
 </footer>
-
-<style>
-  html, body {
-    height: 100%;
-  }
-  body {
-    display: flex;
-    flex-direction: column;
-  }
-  main {
-    flex: 1;
-  }
-</style>
+  </main>
+</body>
+</html>

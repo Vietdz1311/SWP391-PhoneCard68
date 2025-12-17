@@ -21,12 +21,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Controller xử lý nạp tiền vào ví
- * - GET /deposit: Hiển thị trang nạp tiền
- * - POST /deposit: Tạo giao dịch nạp tiền qua VNPay
- * - GET /deposit-return: Xử lý kết quả từ VNPay
- */
 @WebServlet(name = "DepositController", urlPatterns = {"/deposit", "/deposit-return"})
 public class DepositController extends HttpServlet {
     
@@ -45,7 +39,6 @@ public class DepositController extends HttpServlet {
             return;
         }
         
-        // Kiểm tra đăng nhập
         HttpSession session = request.getSession(false);
         User user = (session != null) ? (User) session.getAttribute("user") : null;
         
@@ -54,11 +47,9 @@ public class DepositController extends HttpServlet {
             return;
         }
         
-        // Refresh user
         User freshUser = userDAO.refreshUser(user.getUserId());
         session.setAttribute("user", freshUser);
         
-        // Lấy số tiền cần nạp (nếu có từ checkout)
         String suggestedAmount = request.getParameter("amount");
         String returnTo = request.getParameter("returnTo");
         
@@ -72,7 +63,6 @@ public class DepositController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // Kiểm tra đăng nhập
         HttpSession session = request.getSession(false);
         User user = (session != null) ? (User) session.getAttribute("user") : null;
         
@@ -92,7 +82,6 @@ public class DepositController extends HttpServlet {
         }
         
         try {
-            // Parse và validate số tiền
             long amount = Long.parseLong(amountStr.replaceAll("[^0-9]", ""));
             
             if (amount < 10000) {
@@ -109,10 +98,9 @@ public class DepositController extends HttpServlet {
                 return;
             }
             
-            // Tạo transaction pending
             Transaction trans = new Transaction();
             trans.setUserId(user.getUserId());
-            trans.setOrderId(null); // Không liên kết với order
+            trans.setOrderId(null);
             trans.setType("DEPOSIT");
             trans.setAmount(BigDecimal.valueOf(amount));
             trans.setDescription("Nạp tiền vào ví qua VNPay");
@@ -126,12 +114,10 @@ public class DepositController extends HttpServlet {
                 return;
             }
             
-            // Lưu returnTo vào session nếu có
             if (returnTo != null && !returnTo.isEmpty()) {
                 session.setAttribute("depositReturnTo", returnTo);
             }
             
-            // Tạo URL VNPay
             String baseUrl = VNPayUtil.getBaseUrl(request);
             String returnUrl = baseUrl + request.getContextPath() + "/deposit-return";
             String ipAddress = VNPayUtil.getIpAddress(request);
@@ -154,13 +140,9 @@ public class DepositController extends HttpServlet {
         }
     }
     
-    /**
-     * Xử lý kết quả nạp tiền từ VNPay
-     */
     private void handleDepositReturn(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // Lấy tất cả params từ VNPay
         Map<String, String> params = new HashMap<>();
         Enumeration<String> paramNames = request.getParameterNames();
         while (paramNames.hasMoreElements()) {
@@ -171,7 +153,6 @@ public class DepositController extends HttpServlet {
             }
         }
         
-        // Validate signature
         if (!VNPayUtil.validateSignature(params)) {
             request.setAttribute("error", "Chữ ký không hợp lệ");
             request.setAttribute("success", false);
@@ -202,7 +183,6 @@ public class DepositController extends HttpServlet {
             return;
         }
         
-        // Kiểm tra giao dịch đã xử lý chưa
         if (!"Pending".equals(trans.getStatus())) {
             request.setAttribute("success", "Success".equals(trans.getStatus()));
             request.setAttribute("message", "Success".equals(trans.getStatus()) ? 
@@ -217,7 +197,6 @@ public class DepositController extends HttpServlet {
             conn = DBContext.getConnection();
             conn.setAutoCommit(false);
             
-            // Log kết quả từ VNPay
             PaymentGatewayLog log = new PaymentGatewayLog();
             log.setTransId(transId);
             log.setGatewayName("VNPAY");
@@ -226,13 +205,11 @@ public class DepositController extends HttpServlet {
             logDAO.createLog(log, conn);
             
             if ("00".equals(vnpResponseCode)) {
-                // Thành công - Cộng tiền vào ví
                 transactionDAO.updateTransactionStatus(transId, "Success", conn);
                 userDAO.updateWalletBalance(trans.getUserId(), trans.getAmount(), conn);
                 
                 conn.commit();
                 
-                // Refresh user session
                 HttpSession session = request.getSession(false);
                 if (session != null) {
                     User user = (User) session.getAttribute("user");
@@ -241,7 +218,6 @@ public class DepositController extends HttpServlet {
                         session.setAttribute("user", freshUser);
                     }
                     
-                    // Kiểm tra có returnTo không
                     String returnTo = (String) session.getAttribute("depositReturnTo");
                     if (returnTo != null && !returnTo.isEmpty()) {
                         session.removeAttribute("depositReturnTo");
@@ -256,7 +232,6 @@ public class DepositController extends HttpServlet {
                 request.getRequestDispatcher("/web-page/deposit-result.jsp").forward(request, response);
                 
             } else {
-                // Thất bại
                 transactionDAO.updateTransactionStatus(transId, "Failed", conn);
                 conn.commit();
                 

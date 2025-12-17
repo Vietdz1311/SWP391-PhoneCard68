@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <jsp:include page="./components/header.jsp" />
 
+<!-- Hero Section - Hiện đại hơn với background image đẹp -->
 <section class="relative bg-cover bg-center bg-no-repeat py-40 overflow-hidden" 
          style="background-image: url('https://img.freepik.com/free-psd/modern-abstract-blue-gradient-background_84443-3747.jpg');">
   <div class="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-indigo-900/80"></div>
@@ -83,7 +84,7 @@
             <p class="text-gray-600 mb-6 line-clamp-3">${post.content}</p>
             <div class="flex justify-between text-sm text-gray-500">
               <span class="font-medium">${post.author.username}</span>
-              <span>${post.publishedAt}</span>
+              <span>${post.formattedDate}</span>
             </div>
           </div>
         </div>

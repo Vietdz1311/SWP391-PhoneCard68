@@ -50,6 +50,49 @@ public class PromotionDAO {
         return false;
     }
 
+    public Promotion getActivePromotionByCode(String code) {
+        String sql = "SELECT * FROM Promotions WHERE code = ? AND status = 'Active' " +
+                "AND start_date <= NOW() AND end_date >= NOW()";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, code.toUpperCase());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapPromotion(rs);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public int countUsage(int promotionId) {
+        String sql = "SELECT COUNT(*) FROM Orders WHERE promotion_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, promotionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countUsageByUser(int promotionId, int userId) {
+        String sql = "SELECT COUNT(*) FROM Orders WHERE promotion_id = ? AND user_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, promotionId);
+            ps.setInt(2, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public boolean createPromotion(Promotion p) {
         String sql = "INSERT INTO Promotions (code, discount_type, discount_value, min_order_value, start_date, end_date, usage_limit, usage_per_user, status) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";

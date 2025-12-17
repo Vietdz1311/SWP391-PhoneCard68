@@ -9,6 +9,7 @@ D:\Downloads\document\bloc\SWP_Projectt\PhoneCard68\src\main\java\com\phonecard\
 D:\Downloads\document\bloc\SWP_Projectt\PhoneCard68\src\main\java\com\phonecard\dao\PromotionDAO.java
 D:\Downloads\document\bloc\SWP_Projectt\PhoneCard68\src\main\java\com\phonecard\model\Provider.java
 D:\Downloads\document\bloc\SWP_Projectt\PhoneCard68\src\main\java\com\phonecard\dao\BlogDAO.java
+D:\Downloads\document\bloc\SWP_Projectt\PhoneCard68\src\main\java\com\phonecard\controller\StaffUserController.java
 D:\Downloads\document\bloc\SWP_Projectt\PhoneCard68\src\main\java\com\phonecard\util\VNPayUtil.java
 D:\Downloads\document\bloc\SWP_Projectt\PhoneCard68\src\main\java\com\phonecard\controller\PurchaseResultController.java
 D:\Downloads\document\bloc\SWP_Projectt\PhoneCard68\src\main\java\com\phonecard\dao\OrderDAO.java
@@ -22,6 +23,7 @@ D:\Downloads\document\bloc\SWP_Projectt\PhoneCard68\src\main\java\com\phonecard\
 D:\Downloads\document\bloc\SWP_Projectt\PhoneCard68\src\main\java\com\phonecard\controller\VNPayReturnController.java
 D:\Downloads\document\bloc\SWP_Projectt\PhoneCard68\src\main\java\com\phonecard\controller\ProfileController.java
 D:\Downloads\document\bloc\SWP_Projectt\PhoneCard68\src\main\java\com\phonecard\config\DBContext.java
+D:\Downloads\document\bloc\SWP_Projectt\PhoneCard68\src\main\java\com\phonecard\util\EmailUtil.java
 D:\Downloads\document\bloc\SWP_Projectt\PhoneCard68\src\main\java\com\phonecard\dao\UserDAO.java
 D:\Downloads\document\bloc\SWP_Projectt\PhoneCard68\src\main\java\com\phonecard\model\Order.java
 D:\Downloads\document\bloc\SWP_Projectt\PhoneCard68\src\main\java\com\phonecard\dao\CardProductDAO.java
