@@ -18,20 +18,37 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 
+/**
+ * Controller xử lý luồng mua thẻ cào
+ * - /purchase?productId=xxx: Hiển thị trang checkout
+ * - POST /purchase: Xử lý thanh toán (wallet hoặc vnpay)
+ */
 @WebServlet(name = "PurchaseController", urlPatterns = {"/purchase"})
 public class PurchaseController extends HttpServlet {
     
-    private CardProductDAO productDAO = new CardProductDAO();
-    private CardInventoryDAO inventoryDAO = new CardInventoryDAO();
-    private OrderDAO orderDAO = new OrderDAO();
-    private TransactionDAO transactionDAO = new TransactionDAO();
-    private UserDAO userDAO = new UserDAO();
-    private PromotionDAO promotionDAO = new PromotionDAO();
+// DAO dùng để thao tác dữ liệu sản phẩm thẻ cào (Card_Products)
+private CardProductDAO productDAO = new CardProductDAO();
+
+// DAO dùng để thao tác kho thẻ (Card_Inventory)
+private CardInventoryDAO inventoryDAO = new CardInventoryDAO();
+
+// DAO dùng để thao tác đơn hàng (Orders)
+private OrderDAO orderDAO = new OrderDAO();
+
+// DAO dùng để thao tác giao dịch (Transactions)
+private TransactionDAO transactionDAO = new TransactionDAO();
+
+// DAO dùng để thao tác thông tin người dùng (Users)
+private UserDAO userDAO = new UserDAO();
+
+// DAO dùng để thao tác mã giảm giá (Promotions)
+private PromotionDAO promotionDAO = new PromotionDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+        // Kiểm tra đăng nhập
         HttpSession session = request.getSession(false);
         User user = (session != null) ? (User) session.getAttribute("user") : null;
         
@@ -40,6 +57,7 @@ public class PurchaseController extends HttpServlet {
             return;
         }
         
+        // Lấy thông tin sản phẩm
         String productIdStr = request.getParameter("productId");
         if (productIdStr == null || productIdStr.isEmpty()) {
             response.sendRedirect(request.getContextPath() + "/products");
@@ -55,6 +73,7 @@ public class PurchaseController extends HttpServlet {
                 return;
             }
             
+            // Kiểm tra còn hàng không
             if (product.getAvailableCount() <= 0) {
                 request.setAttribute("error", "Sản phẩm đã hết hàng");
                 request.setAttribute("product", product);
@@ -62,9 +81,11 @@ public class PurchaseController extends HttpServlet {
                 return;
             }
             
+            // Refresh thông tin user để lấy số dư mới nhất
             User freshUser = userDAO.refreshUser(user.getUserId());
             session.setAttribute("user", freshUser);
 
+            // Xử lý áp dụng mã giảm giá (chỉ để hiển thị trước)
             BigDecimal sellingPrice = BigDecimal.valueOf(product.getSellingPrice());
             BigDecimal discountAmount = BigDecimal.ZERO;
             BigDecimal finalAmount = sellingPrice;
@@ -124,6 +145,7 @@ public class PurchaseController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+        // Kiểm tra đăng nhập
         HttpSession session = request.getSession(false);
         User user = (session != null) ? (User) session.getAttribute("user") : null;
         
@@ -153,6 +175,7 @@ public class PurchaseController extends HttpServlet {
             
             BigDecimal sellingPrice = BigDecimal.valueOf(product.getSellingPrice());
 
+            // Xử lý mã giảm giá (nếu có)
             Promotion appliedPromotion = null;
             BigDecimal discountAmount = BigDecimal.ZERO;
             BigDecimal finalAmount = sellingPrice;
@@ -161,6 +184,7 @@ public class PurchaseController extends HttpServlet {
                 promoCode = promoCode.trim();
                 appliedPromotion = promotionDAO.getActivePromotionByCode(promoCode);
 
+                // Kiểm tra hợp lệ
                 if (appliedPromotion == null) {
                     setCheckoutError(request, response, product, user, "Mã giảm giá không hợp lệ hoặc đã hết hạn", promoCode);
                     return;
@@ -170,17 +194,20 @@ public class PurchaseController extends HttpServlet {
                     setCheckoutError(request, response, product, user, "Đơn hàng chưa đạt giá trị tối thiểu của mã giảm giá", promoCode);
                     return;
                 }
+                // Giới hạn tổng số lượt sử dụng
                 if (appliedPromotion.getUsageLimit() > 0 &&
                         promotionDAO.countUsage(appliedPromotion.getPromotionId()) >= appliedPromotion.getUsageLimit()) {
                     setCheckoutError(request, response, product, user, "Mã giảm giá đã đạt giới hạn sử dụng", promoCode);
                     return;
                 }
+                // Giới hạn mỗi user
                 if (appliedPromotion.getUsagePerUser() > 0 &&
                         promotionDAO.countUsageByUser(appliedPromotion.getPromotionId(), user.getUserId()) >= appliedPromotion.getUsagePerUser()) {
                     setCheckoutError(request, response, product, user, "Bạn đã dùng hết số lần cho mã này", promoCode);
                     return;
                 }
 
+                // Tính chiết khấu
                 if ("PERCENTAGE".equalsIgnoreCase(appliedPromotion.getDiscountType())) {
                     discountAmount = sellingPrice
                             .multiply(appliedPromotion.getDiscountValue())
@@ -194,14 +221,17 @@ public class PurchaseController extends HttpServlet {
                 finalAmount = sellingPrice.subtract(discountAmount);
             }
 
+            // Lấy số dư ví để chọn mặc định nếu người dùng chưa chọn radio
             BigDecimal walletBalance = userDAO.getWalletBalance(user.getUserId());
             if (paymentMethod == null || paymentMethod.isEmpty()) {
                 paymentMethod = walletBalance.compareTo(finalAmount) >= 0 ? "wallet" : "vnpay";
             }
 
             if ("wallet".equals(paymentMethod)) {
+                // Thanh toán bằng ví
                 processWalletPayment(request, response, user, product, appliedPromotion, discountAmount, finalAmount, promoCode, walletBalance);
             } else if ("vnpay".equals(paymentMethod)) {
+                // Thanh toán qua VNPay
                 processVNPayPayment(request, response, user, product, appliedPromotion, discountAmount, finalAmount);
             } else {
                 response.sendRedirect(request.getContextPath() + "/purchase?productId=" + productId);
@@ -226,13 +256,18 @@ public class PurchaseController extends HttpServlet {
         request.getRequestDispatcher("/web-page/checkout.jsp").forward(request, response);
     }
 
+    /**
+     * Xử lý thanh toán bằng ví
+     */
     private void processWalletPayment(HttpServletRequest request, HttpServletResponse response,
                                        User user, CardProduct product, Promotion promotion,
                                        BigDecimal discountAmount, BigDecimal finalAmount,
                                        String promoCode, BigDecimal walletBalance) 
             throws IOException, ServletException {
 
+        // Kiểm tra số dư
         if (walletBalance.compareTo(finalAmount) < 0) {
+            // Không đủ tiền - chuyển đến trang nạp tiền
             BigDecimal needMore = finalAmount.subtract(walletBalance);
             request.setAttribute("product", product);
             request.setAttribute("user", user);
@@ -251,6 +286,7 @@ public class PurchaseController extends HttpServlet {
             conn = DBContext.getConnection();
             conn.setAutoCommit(false);
             
+            // 1. Lấy thẻ khả dụng từ kho (lock cùng transaction)
             CardInventory card = inventoryDAO.getAvailableCard(product.getProductId(), conn);
             if (card == null) {
                 conn.rollback();
@@ -259,7 +295,7 @@ public class PurchaseController extends HttpServlet {
                 return;
             }
             
-            
+            // 2. Tạo đơn hàng
             Order order = new Order();
             order.setUserId(user.getUserId());
             order.setCardId(card.getCardId());
@@ -277,16 +313,19 @@ public class PurchaseController extends HttpServlet {
                 throw new Exception("Không thể tạo đơn hàng");
             }
             
+            // 3. Trừ tiền ví
             if (!userDAO.updateWalletBalance(user.getUserId(), finalAmount.negate(), conn)) {
                 conn.rollback();
                 throw new Exception("Không thể trừ tiền ví");
             }
             
+            // 4. Cập nhật trạng thái thẻ
             if (!inventoryDAO.updateCardStatus(card.getCardId(), "Sold", conn)) {
                 conn.rollback();
                 throw new Exception("Không thể cập nhật trạng thái thẻ");
             }
             
+            // 5. Tạo transaction record
             Transaction trans = new Transaction();
             trans.setUserId(user.getUserId());
             trans.setOrderId(orderId);
@@ -298,9 +337,11 @@ public class PurchaseController extends HttpServlet {
             
             conn.commit();
             
+            // Refresh session user
             User freshUser = userDAO.refreshUser(user.getUserId());
             request.getSession().setAttribute("user", freshUser);
             
+            // Chuyển đến trang kết quả
             response.sendRedirect(request.getContextPath() + "/purchase-result?orderId=" + orderId);
             
         } catch (Exception e) {
@@ -317,6 +358,9 @@ public class PurchaseController extends HttpServlet {
         }
     }
 
+    /**
+     * Xử lý thanh toán qua VNPay - Tạo URL và redirect
+     */
     private void processVNPayPayment(HttpServletRequest request, HttpServletResponse response,
                                       User user, CardProduct product, Promotion promotion,
                                       BigDecimal discountAmount, BigDecimal finalAmount) 
@@ -327,6 +371,7 @@ public class PurchaseController extends HttpServlet {
             conn = DBContext.getConnection();
             conn.setAutoCommit(false);
             
+            // 1. Lấy và lock thẻ khả dụng (cùng transaction)
             CardInventory card = inventoryDAO.getAvailableCard(product.getProductId(), conn);
             if (card == null) {
                 conn.rollback();
@@ -335,12 +380,14 @@ public class PurchaseController extends HttpServlet {
                 return;
             }
 
+            // 1.1 Đánh dấu thẻ là đã được giữ chỗ để tránh order trùng card_id
             boolean reserved = inventoryDAO.updateCardStatus(card.getCardId(), "Sold", conn);
             if (!reserved) {
                 conn.rollback();
                 throw new Exception("Không thể giữ chỗ thẻ, vui lòng thử lại");
             }
             
+            // 2. Tạo đơn hàng pending
             Order order = new Order();
             order.setUserId(user.getUserId());
             order.setCardId(card.getCardId());
@@ -358,6 +405,7 @@ public class PurchaseController extends HttpServlet {
                 throw new Exception("Không thể tạo đơn hàng");
             }
             
+            // 3. Tạo transaction pending
             Transaction trans = new Transaction();
             trans.setUserId(user.getUserId());
             trans.setOrderId(orderId);
@@ -374,6 +422,7 @@ public class PurchaseController extends HttpServlet {
             
             conn.commit();
             
+            // 4. Tạo URL VNPay
             String baseUrl = VNPayUtil.getBaseUrl(request);
             String returnUrl = VNPayConfig.getReturnUrl(request.getContextPath(), baseUrl);
             String ipAddress = VNPayUtil.getIpAddress(request);
@@ -382,11 +431,12 @@ public class PurchaseController extends HttpServlet {
             String paymentUrl = VNPayUtil.createPaymentUrl(
                 finalAmount.longValue(),
                 orderInfo,
-                String.valueOf(transId),
+                String.valueOf(transId), // Dùng transId làm vnp_TxnRef
                 ipAddress,
                 returnUrl
             );
             
+            // Lưu orderId vào session để verify sau
             request.getSession().setAttribute("pendingOrderId", orderId);
             request.getSession().setAttribute("pendingTransId", transId);
             
@@ -397,6 +447,7 @@ public class PurchaseController extends HttpServlet {
             if (conn != null) {
                 try { conn.rollback(); } catch (Exception ex) {}
             }
+            // Giữ nguyên trang checkout và hiển thị lỗi để người dùng thấy rõ
             String friendly = "Có lỗi xảy ra khi tạo thanh toán VNPay";
             if (e.getMessage() != null && !e.getMessage().isEmpty()) {
                 friendly += ": " + e.getMessage();

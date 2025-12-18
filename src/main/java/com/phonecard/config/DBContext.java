@@ -8,7 +8,7 @@ public class DBContext {
     
     private static final String DB_URL = "jdbc:mysql://localhost:3306/phonecard_system";
     private static final String USER = "root";
-    private static final String PASS = "23341";  
+    private static final String PASS = "123456";  
 
     public static Connection getConnection() {
         Connection conn = null;
