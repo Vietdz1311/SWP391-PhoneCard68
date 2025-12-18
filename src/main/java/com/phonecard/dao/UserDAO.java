@@ -332,7 +332,7 @@ public boolean changePassword(User user) {
         u.setWalletBalance(rs.getBigDecimal("wallet_balance"));
         u.setPassword(rs.getString("password"));
         u.setStatus(rs.getString("status"));
-        if (rs.getTimestamp("created_at") != null) {
+        if (rs.getTimestamp("created_at") != null) {    
         u.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
         }
         return u;
