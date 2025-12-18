@@ -58,7 +58,7 @@ public class AdminUserController extends HttpServlet {
             return;
         }
 
-        if ("lock".equals(action) || "unlock".equals(action)) {
+            if ("lock".equals(action) || "unlock".equals(action)) {
             int id = Integer.parseInt(request.getParameter("id"));
             User targetUser = userDAO.getUserById(id);
             if (!"Admin".equals(targetUser.getRole())) {

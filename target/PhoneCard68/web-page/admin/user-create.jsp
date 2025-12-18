@@ -49,7 +49,7 @@
             <div>
                 <label class="block mb-2 font-semibold text-gray-700">Số điện thoại <span class="text-red-500">*</span></label>
                 <input type="tel" name="phone" required value="${tempUser.phone}"
-                       pattern="[0-9]{10,11}" title="Số điện thoại phải có 10-11 chữ số"
+                       pattern="0[0-9]{10,11}" title="Số điện thoại phải có 10-11 chữ số"
                        class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition">
             </div>
 
