@@ -112,7 +112,7 @@
                         </label>
                         <label class="relative">
                             <input type="radio" name="addMode" value="random" class="peer sr-only" onchange="toggleMode(this.value)">
-                            <div class="p-4 border-2 border-gray-200 rounded-xl cursor-pointer transition
+<!--                            <div class="p-4 border-2 border-gray-200 rounded-xl cursor-pointer transition
                                         peer-checked:border-green-500 peer-checked:bg-green-50">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -123,7 +123,7 @@
                                         <p class="text-sm text-gray-500">Tự động tạo mã thẻ</p>
                                     </div>
                                 </div>
-                            </div>
+                            </div>-->
                         </label>
                     </div>
                 </div>

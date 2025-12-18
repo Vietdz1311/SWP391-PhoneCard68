@@ -14,6 +14,7 @@ com\phonecard\model\Order.class
 com\phonecard\model\User.class
 com\phonecard\dao\BlogDAO.class
 com\phonecard\util\EmailUtil$3.class
+com\phonecard\controller\StaffCardProductController.class
 com\phonecard\controller\DepositController.class
 com\phonecard\controller\ProfileController.class
 com\phonecard\dao\ProviderDAO.class
